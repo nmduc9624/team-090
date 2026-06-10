@@ -1,0 +1,83 @@
+{
+  "dataset_name": "SOC Response Assistant normalized dataset",
+  "source_files": {
+    "duc": "C:\\Users\\nguye\\Downloads\\data_duc.docx",
+    "tuan": "C:\\Users\\nguye\\Downloads\\data_tuan.docx",
+    "cung": "C:\\Users\\nguye\\Downloads\\data_cung.docx"
+  },
+  "language": "Vietnamese preferred; English technical terms preserved.",
+  "incident_schema": {
+    "case_id": "Stable case ID derived from alert_id",
+    "alert_id": "Original alert ID from raw log",
+    "incident_type": "One of four SOC Response Assistant incident types",
+    "raw_log_or_alert": "Input alert/log text",
+    "expected_severity": "Low/Medium/High/Critical",
+    "entities_to_extract": "Expected entities/fields for extraction",
+    "expected_timeline": "Parsed timestamped events",
+    "true_positive_evidence": "Evidence leaning TP",
+    "false_positive_evidence": "Evidence leaning FP/benign",
+    "missing_evidence": "Evidence still needed",
+    "expected_response_steps": "Recommended steps only; analyst approval required",
+    "escalation_condition": "When to escalate",
+    "expected_incident_report": "Structured draft report target"
+  },
+  "validation": {
+    "case_count": 120,
+    "unique_case_id_count": 120,
+    "unique_alert_id_count": 120,
+    "incident_type_distribution": {
+      "Suspicious Login / Brute Force": 30,
+      "Phishing Email": 30,
+      "Malware / EDR Alert": 30,
+      "Suspicious Outbound Connection": 30
+    },
+    "source_file_distribution": {
+      "data_duc.docx": 40,
+      "data_tuan.docx": 40,
+      "curated_supplemental_cases": 40
+    },
+    "severity_distribution": {
+      "High": 53,
+      "Medium": 46,
+      "Low": 9,
+      "Critical": 12
+    },
+    "split_distribution": {
+      "train_demo_seed": 80,
+      "test_gold": 40
+    },
+    "tp_fp_assessment_distribution": {
+      "likely_true_positive": 65,
+      "inconclusive": 44,
+      "needs_validation_possible_false_positive": 11
+    },
+    "false_positive_or_benign_case_count": 11,
+    "false_positive_or_benign_cases": [
+      "PHISH-N05",
+      "PHISH-N09",
+      "LOGIN-T02",
+      "LOGIN-T06",
+      "LOGIN-T10",
+      "PHISH-T02",
+      "PHISH-T06",
+      "EDR-T02",
+      "EDR-T08",
+      "NET-T02",
+      "NET-T06"
+    ],
+    "edge_case_count": 8,
+    "edge_cases": [
+      "LOGIN-T03",
+      "LOGIN-T04",
+      "LOGIN-T07",
+      "PHISH-T08",
+      "EDR-T06",
+      "EDR-T10",
+      "NET-T09",
+      "NET-T10"
+    ],
+    "rag_playbook_count": 12,
+    "shared_rag_doc_count": 5,
+    "issues": []
+  }
+}
