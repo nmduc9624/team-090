@@ -1,0 +1,41 @@
+log_sources:
+  edr_process:
+    description: Endpoint process creation telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - parent_process
+      - process_name
+      - command_line
+      - process_hash
+  edr_registry:
+    description: Endpoint registry modification telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - registry_key
+      - registry_value
+      - process_name
+      - action
+  dns:
+    description: DNS query telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - query
+      - response_ip
+      - category
+  proxy:
+    description: Web proxy telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - url
+      - domain
+      - action
+      - category
+      - bytes_out

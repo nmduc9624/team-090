@@ -1,0 +1,18 @@
+// Hunt for Office spawning mshta, followed by persistence and network activity.
+let process_window = 24h;
+let suspicious_process = DeviceProcessEvents
+| where Timestamp > ago(process_window)
+| where InitiatingProcessFileName in~ ("excel.exe", "winword.exe", "outlook.exe")
+| where FileName =~ "mshta.exe"
+| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine;
+let persistence = DeviceRegistryEvents
+| where Timestamp > ago(process_window)
+| where RegistryKey has @"\Software\Microsoft\Windows\CurrentVersion\Run"
+| project Timestamp, DeviceName, RegistryKey, RegistryValueData, InitiatingProcessFileName;
+let network = DeviceNetworkEvents
+| where Timestamp > ago(process_window)
+| where RemoteUrl != "" or RemoteIP != ""
+| project Timestamp, DeviceName, InitiatingProcessFileName, RemoteUrl, RemoteIP, RemotePort;
+suspicious_process
+| join kind=leftouter persistence on DeviceName
+| join kind=leftouter network on DeviceName

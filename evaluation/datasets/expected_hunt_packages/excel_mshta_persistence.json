@@ -1,0 +1,16 @@
+{
+  "threat_summary": "Malware campaign using Excel to launch mshta, download a payload, create Registry Run Key persistence, and communicate with unknown HTTPS domains.",
+  "key_behaviors": [
+    "excel.exe launches mshta.exe",
+    "mshta.exe retrieves remote payload",
+    "Registry Run Key is created",
+    "Host connects to newly registered or uncategorized HTTPS domain"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "edr_registry",
+    "dns",
+    "proxy"
+  ],
+  "escalation_condition": "Escalate when the same host shows Office-to-mshta process chain plus persistence or suspicious network activity."
+}

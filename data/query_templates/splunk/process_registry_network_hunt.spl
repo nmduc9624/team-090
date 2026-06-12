@@ -1,0 +1,10 @@
+index=edr sourcetype=process earliest=-24h
+(parent_process IN ("excel.exe","winword.exe","outlook.exe") process_name="mshta.exe")
+| table _time host user parent_process process_name command_line
+
+index=edr sourcetype=registry earliest=-24h registry_key="*\Software\Microsoft\Windows\CurrentVersion\Run*"
+| table _time host user process_name registry_key registry_value
+
+index=proxy OR index=dns earliest=-24h
+| search domain=* OR query=*
+| table _time host user domain query action category
