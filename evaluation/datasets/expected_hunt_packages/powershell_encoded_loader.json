@@ -1,0 +1,44 @@
+{
+  "threat_summary": "A malware report describes hidden PowerShell launched from a script host, using encoded commands to download a payload and run it from a user temp folder.",
+  "key_behaviors": [
+    "wscript.exe launches powershell.exe",
+    "PowerShell uses encoded command",
+    "payload is written under user temp path",
+    "PowerShell connects to unknown domain"
+  ],
+  "ioc": {
+    "domains": [
+      "cdn-update-check.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "update.tmp"
+    ],
+    "processes": [
+      "wscript.exe",
+      "powershell.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1059.001 - PowerShell",
+    "T1027 - Obfuscated Files or Information",
+    "T1105 - Ingress Tool Transfer"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "dns",
+    "proxy"
+  ],
+  "hunt_checklist": [
+    "Search for encoded PowerShell command lines.",
+    "Filter PowerShell launched by script hosts or Office apps.",
+    "Check outbound connections after the process starts.",
+    "Review downloaded file paths and hashes."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when encoded PowerShell has outbound traffic or writes executable content.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

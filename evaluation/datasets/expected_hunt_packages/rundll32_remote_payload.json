@@ -1,0 +1,42 @@
+{
+  "threat_summary": "The advisory describes abuse of rundll32 to load DLL payloads from user-writable directories after browser download.",
+  "key_behaviors": [
+    "browser downloads DLL",
+    "rundll32.exe loads DLL from Downloads",
+    "outbound network follows execution"
+  ],
+  "ioc": {
+    "domains": [
+      "cdn-driver-update.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "driver_update.dll"
+    ],
+    "processes": [
+      "chrome.exe",
+      "rundll32.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1218.011 - Rundll32",
+    "T1105 - Ingress Tool Transfer"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "proxy",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search for rundll32 loading DLLs from user profile paths.",
+    "Correlate with recent browser downloads.",
+    "Check outbound connections from rundll32.",
+    "Hunt the DLL name or hash across hosts."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when rundll32 loads unsigned DLLs from user-writable paths with network activity.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

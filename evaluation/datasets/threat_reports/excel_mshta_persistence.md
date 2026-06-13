@@ -1,11 +1,19 @@
-# Sample Threat Report: Excel Malware Using mshta Persistence
+# Threat Report: Excel Malware Using mshta Persistence
 
-A recent malware campaign delivers a fake invoice as an Excel attachment. When the victim opens the workbook and enables content, Excel spawns `mshta.exe` to retrieve a remote HTML application payload from an attacker-controlled domain.
+## Summary
+A fake invoice Excel attachment launches mshta, retrieves a remote payload, creates Registry Run Key persistence, then connects to unknown HTTPS domains.
 
-After the payload runs, the malware creates a Registry Run Key under `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` so it can restart after reboot. The infected host later makes HTTPS connections to newly registered domains for command and control.
+## Observed Behaviors
+- excel.exe launches mshta.exe
+- mshta.exe retrieves a remote payload
+- Registry Run Key is created
+- host connects to newly registered or uncategorized HTTPS domain
 
-Observed behaviors:
-- `excel.exe` launches `mshta.exe`.
-- `mshta.exe` downloads a payload from an unknown domain.
-- A new Registry Run Key is created.
-- The same host connects to a newly registered or uncategorized domain over HTTPS.
+## Indicators
+- domains: invoice-checker.example
+- files: invoice.xlsm
+- processes: excel.exe, mshta.exe
+- registry_keys: HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+
+## Analyst Note
+This is a synthetic MVP report for building and evaluating hunt-package generation. The goal is to convert behavior descriptions into telemetry checks and query drafts.

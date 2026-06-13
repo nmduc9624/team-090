@@ -1,0 +1,6 @@
+// Find new OAuth grants with high-risk mail or file scopes.
+AuditLogs
+| where TimeGenerated > ago(7d)
+| where OperationName has_any ("Consent", "Add service principal", "OAuth")
+| where TargetResources has_any ("Mail.Read", "Mail.ReadWrite", "Files.Read", "offline_access")
+| project TimeGenerated, InitiatedBy, OperationName, TargetResources

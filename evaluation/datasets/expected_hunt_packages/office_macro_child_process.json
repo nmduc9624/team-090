@@ -1,0 +1,42 @@
+{
+  "threat_summary": "A malware write-up describes macro-enabled documents spawning script interpreters to run downloader logic.",
+  "key_behaviors": [
+    "winword.exe launches wscript.exe",
+    "wscript runs encoded script",
+    "script reaches uncategorized domain"
+  ],
+  "ioc": {
+    "domains": [
+      "doc-preview.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "document.docm"
+    ],
+    "processes": [
+      "winword.exe",
+      "wscript.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1204.002 - Malicious File",
+    "T1059.005 - Visual Basic"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "dns",
+    "proxy"
+  ],
+  "hunt_checklist": [
+    "Find Office parent processes spawning script interpreters.",
+    "Inspect command lines for encoded or hidden script.",
+    "Check DNS/proxy activity after script launch.",
+    "Group users by same attachment or domain."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when Office child process reaches external domains or writes executable files.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

@@ -1,0 +1,44 @@
+{
+  "threat_summary": "A CVE advisory describes exploitation that uploads a webshell under the web root, then runs OS commands through the web worker process.",
+  "key_behaviors": [
+    "new script file appears in web root",
+    "web worker spawns command shell",
+    "outbound connection from server"
+  ],
+  "ioc": {
+    "domains": [
+      "drop-zone.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "shell.aspx",
+      "cmd.jsp"
+    ],
+    "processes": [
+      "w3wp.exe",
+      "cmd.exe",
+      "bash"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1505.003 - Web Shell",
+    "T1059 - Command and Scripting Interpreter"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "web_server",
+    "proxy"
+  ],
+  "hunt_checklist": [
+    "Search for web worker spawning shell processes.",
+    "Find new files in web root paths.",
+    "Review HTTP requests around file creation time.",
+    "Check outbound from affected server."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when web worker executes shell commands or new webshell-like files appear.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

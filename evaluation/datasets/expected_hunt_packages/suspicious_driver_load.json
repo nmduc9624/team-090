@@ -1,0 +1,40 @@
+{
+  "threat_summary": "A report describes attackers attempting to load a vulnerable or unsigned driver to disable security tooling.",
+  "key_behaviors": [
+    "driver file written to system path",
+    "driver load attempted",
+    "security tool process stops soon after"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "rtcore64.sys"
+    ],
+    "processes": [
+      "sc.exe",
+      "fltmc.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1068 - Exploitation for Privilege Escalation",
+    "T1562.001 - Disable or Modify Tools"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "driver_load",
+    "windows_service"
+  ],
+  "hunt_checklist": [
+    "Search for driver load events.",
+    "Identify unsigned or vulnerable driver names.",
+    "Correlate with security service stop events.",
+    "List hosts with same driver hash."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when driver load is followed by security tool tampering or service stops.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

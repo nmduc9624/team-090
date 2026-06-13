@@ -1,0 +1,38 @@
+{
+  "threat_summary": "The report describes malware that creates a scheduled task named like a browser updater after initial execution.",
+  "key_behaviors": [
+    "unknown executable creates scheduled task",
+    "task runs from AppData path",
+    "task executes at user logon"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "browser_update.exe"
+    ],
+    "processes": [
+      "schtasks.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1053.005 - Scheduled Task",
+    "T1036 - Masquerading"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "edr_task"
+  ],
+  "hunt_checklist": [
+    "Search for schtasks.exe creating or modifying tasks.",
+    "Identify task actions pointing to AppData or Temp.",
+    "Correlate task creation with suspicious parent process.",
+    "List hosts with same task name."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when a new scheduled task runs unsigned binaries from user-writable folders.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

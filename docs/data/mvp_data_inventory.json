@@ -1,0 +1,9 @@
+{
+  "threat_reports": 20,
+  "expected_hunt_packages": 20,
+  "log_schema_files": 1,
+  "query_templates": 10,
+  "mitre_mappings": 30,
+  "ioc_patterns": 20,
+  "status": "MVP minimum data complete"
+}

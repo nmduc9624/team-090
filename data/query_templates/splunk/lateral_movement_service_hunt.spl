@@ -1,0 +1,3 @@
+index=edr sourcetype=process earliest=-24h process_name IN ("sc.exe","psexec.exe","wmic.exe")
+| search command_line="*create*" OR command_line="*ADMIN$*" OR command_line="*\\*"
+| table _time host user process_name command_line

@@ -1,0 +1,38 @@
+{
+  "threat_summary": "A malware family persists through WMI event filters and consumers that execute scripts when users log in.",
+  "key_behaviors": [
+    "WMI event filter created",
+    "WMI consumer executes script",
+    "script path under ProgramData"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "updater.vbs"
+    ],
+    "processes": [
+      "wmic.exe",
+      "scrcons.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1546.003 - Windows Management Instrumentation Event Subscription"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "wmi_events"
+  ],
+  "hunt_checklist": [
+    "Find WMI filter/consumer creation events.",
+    "Inspect consumer command lines.",
+    "Correlate with suspicious script files.",
+    "List hosts sharing same WMI consumer name."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when new WMI persistence executes scripts from unusual paths.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

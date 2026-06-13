@@ -1,0 +1,3 @@
+index=edr sourcetype=process earliest=-24h process_name="powershell.exe"
+| search command_line="*-enc*" OR command_line="*-EncodedCommand*" OR command_line="*-nop*" OR command_line="*-w hidden*"
+| table _time host user parent_process process_name command_line

@@ -1,0 +1,6 @@
+// Find encoded or hidden PowerShell launched by suspicious parents.
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where FileName =~ "powershell.exe"
+| where ProcessCommandLine has_any ("-enc", "-EncodedCommand", "-nop", "-w hidden")
+| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine

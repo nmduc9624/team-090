@@ -1,0 +1,43 @@
+{
+  "threat_summary": "A phishing campaign sends archive files containing LNK shortcuts that execute PowerShell and retrieve remote content.",
+  "key_behaviors": [
+    "explorer.exe launches powershell.exe from LNK",
+    "PowerShell downloads remote content",
+    "archive attachment precedes execution"
+  ],
+  "ioc": {
+    "domains": [
+      "file-share-update.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "invoice.lnk"
+    ],
+    "processes": [
+      "explorer.exe",
+      "powershell.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1204.002 - Malicious File",
+    "T1059.001 - PowerShell",
+    "T1105 - Ingress Tool Transfer"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "email",
+    "proxy"
+  ],
+  "hunt_checklist": [
+    "Find PowerShell launched from LNK or explorer context.",
+    "Correlate with email attachment delivery.",
+    "Check remote URL contacted by PowerShell.",
+    "List users receiving same attachment."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when LNK execution leads to PowerShell network activity.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

@@ -1,0 +1,6 @@
+// Find hosts with high-volume TXT queries or long subdomains.
+DnsEvents
+| where Timestamp > ago(24h)
+| where QueryType =~ "TXT" or strlen(QueryName) > 80
+| summarize QueryCount=count(), SampleQuery=any(QueryName) by DeviceName, bin(Timestamp, 1h)
+| where QueryCount > 50

@@ -1,0 +1,3 @@
+index=dns earliest=-24h (query_type=TXT OR len(query)>80)
+| stats count as query_count values(query) as sample_queries by host
+| where query_count > 50

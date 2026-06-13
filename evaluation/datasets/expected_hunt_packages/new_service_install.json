@@ -1,0 +1,40 @@
+{
+  "threat_summary": "The report notes malware installing a service with a legitimate-looking name that runs from ProgramData.",
+  "key_behaviors": [
+    "service created with suspicious binary path",
+    "binary stored under ProgramData",
+    "service starts automatically"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "system_cache.exe"
+    ],
+    "processes": [
+      "services.exe",
+      "sc.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1543.003 - Windows Service",
+    "T1036 - Masquerading"
+  ],
+  "required_telemetry": [
+    "windows_service",
+    "edr_process",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search for new service creation.",
+    "Check service binary path for user-writable or unusual folders.",
+    "Review parent process and account.",
+    "Hunt same service name across hosts."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when an auto-start service points to unsigned binaries outside standard program directories.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

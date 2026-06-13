@@ -1,0 +1,37 @@
+{
+  "threat_summary": "The report describes attackers repeatedly triggering MFA prompts before accessing cloud mail APIs.",
+  "key_behaviors": [
+    "many MFA prompts in short window",
+    "one approval follows repeated denials",
+    "cloud mail API access occurs after approval"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [
+      "203.0.113.88"
+    ],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1621 - Multi-Factor Authentication Request Generation",
+    "T1114 - Email Collection"
+  ],
+  "required_telemetry": [
+    "auth",
+    "cloud_audit",
+    "email_audit"
+  ],
+  "hunt_checklist": [
+    "Find accounts with MFA prompt bursts.",
+    "Check approvals after repeated denials.",
+    "Review cloud API activity after MFA approval.",
+    "Identify new mail rules or OAuth grants."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when MFA fatigue is followed by successful login or mailbox/API access.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

@@ -1,0 +1,40 @@
+{
+  "threat_summary": "The advisory describes attackers copying tools through ADMIN$ and creating remote services on adjacent Windows hosts.",
+  "key_behaviors": [
+    "file copied to ADMIN$ share",
+    "remote service created",
+    "same account touches multiple hosts"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "svc_update.exe"
+    ],
+    "processes": [
+      "sc.exe",
+      "psexesvc.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1021.002 - SMB/Windows Admin Shares",
+    "T1569.002 - Service Execution"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "auth",
+    "windows_service"
+  ],
+  "hunt_checklist": [
+    "Find remote service creation events.",
+    "Search for ADMIN$ file writes.",
+    "Group activity by account and source host.",
+    "Identify fan-out to multiple destinations."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when the same account creates services or copies binaries across multiple hosts.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

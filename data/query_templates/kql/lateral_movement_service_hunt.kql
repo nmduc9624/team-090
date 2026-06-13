@@ -1,0 +1,6 @@
+// Find remote service creation and admin-share style lateral movement.
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where FileName in~ ("sc.exe", "psexec.exe", "wmic.exe")
+| where ProcessCommandLine has_any ("create", "\\", "ADMIN$")
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine

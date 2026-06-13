@@ -1,0 +1,47 @@
+{
+  "threat_summary": "A Linux malware advisory describes persistence through cron entries that run curl to retrieve a shell script.",
+  "key_behaviors": [
+    "cron entry created",
+    "curl downloads shell script",
+    "script connects to external IP"
+  ],
+  "ioc": {
+    "domains": [
+      "repo-health-check.example"
+    ],
+    "ips": [
+      "192.0.2.44"
+    ],
+    "hashes": [],
+    "files": [
+      "/tmp/.cache.sh"
+    ],
+    "processes": [
+      "cron",
+      "curl",
+      "bash"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1053.003 - Cron",
+    "T1105 - Ingress Tool Transfer",
+    "T1059.004 - Unix Shell"
+  ],
+  "required_telemetry": [
+    "linux_process",
+    "linux_audit",
+    "dns",
+    "proxy"
+  ],
+  "hunt_checklist": [
+    "Search cron modifications.",
+    "Find curl/wget writing scripts to temp paths.",
+    "Check bash execution from temp or hidden paths.",
+    "Correlate with outbound connections."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when cron persistence launches downloaded scripts from temp or hidden directories.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

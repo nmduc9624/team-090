@@ -1,0 +1,43 @@
+{
+  "threat_summary": "The report describes attackers using rclone to stage and transfer archive files from file servers to external storage.",
+  "key_behaviors": [
+    "rclone.exe runs on server",
+    "large outbound transfer",
+    "archive files created before transfer"
+  ],
+  "ioc": {
+    "domains": [
+      "storage-sync.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "rclone.exe",
+      "finance_archive.zip"
+    ],
+    "processes": [
+      "rclone.exe",
+      "7z.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1560 - Archive Collected Data",
+    "T1041 - Exfiltration Over C2 Channel"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "proxy",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search for rclone execution.",
+    "Find archive creation before rclone activity.",
+    "Check large outbound transfers.",
+    "Identify source folders touched by the process."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when rclone runs on servers or high-value workstations with large outbound traffic.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

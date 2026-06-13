@@ -1,0 +1,44 @@
+{
+  "threat_summary": "The report describes a typosquatted npm package that runs postinstall commands to download a second-stage script.",
+  "key_behaviors": [
+    "node.exe launches shell during npm install",
+    "postinstall downloads script",
+    "script writes startup file"
+  ],
+  "ioc": {
+    "domains": [
+      "pkg-verify.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "postinstall.js",
+      "update.cmd"
+    ],
+    "processes": [
+      "node.exe",
+      "npm.exe",
+      "cmd.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1195.002 - Compromise Software Supply Chain",
+    "T1059 - Command and Scripting Interpreter"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "proxy",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search for npm/node spawning shell processes.",
+    "Check outbound requests during package install.",
+    "Find startup file writes by developer tools.",
+    "Group by package name or registry domain."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate behavior on the same host/user within a 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when package install behavior creates persistence or downloads code from unknown domains.",
+  "analyst_notes": "Generated as synthetic gold output for MVP evaluation. Queries should be reviewed against the real SIEM/EDR schema."
+}

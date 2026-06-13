@@ -1,0 +1,5 @@
+// Find Run Key persistence creation or modification.
+DeviceRegistryEvents
+| where Timestamp > ago(24h)
+| where RegistryKey has @"\Software\Microsoft\Windows\CurrentVersion\Run"
+| project Timestamp, DeviceName, AccountName, RegistryKey, RegistryValueData, InitiatingProcessFileName
