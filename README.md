@@ -1,28 +1,193 @@
-# AI Threat Intel to Hunt Package Assistant
+﻿# AI Threat Intel to Hunt Package Assistant
 
-AI assistant for SOC Junior analysts that converts long threat reports, advisories, and malware write-ups into practical hunt packages.
+MVP web app for SOC junior analysts. The app converts a threat report or alert context into a practical hunt package: summary, suspicious behaviors, IOC, MITRE ATT&CK mapping, required telemetry, investigation checklist, query drafts, and escalation guidance.
 
-The app does not detect attacks by itself and does not replace SIEM/EDR. Its goal is to help analysts quickly answer: what should we search for in our telemetry, which queries should we run, and when should we escalate?
+The assistant does not replace SIEM/EDR and does not perform containment. It helps an analyst understand what to check next.
 
-## Core Workflow
+## MVP Status
 
-1. Analyst uploads or pastes a threat report.
-2. AI extracts threat summary, IOC, behaviors, and TTPs.
-3. AI maps behaviors to available telemetry such as EDR process logs, DNS logs, proxy logs, registry logs, email logs, and auth logs.
-4. AI generates a hunt checklist and query drafts.
-5. Analyst reviews, edits, exports, and runs the hunt package in the real tools.
+Current MVP includes:
+
+- React/Vite frontend.
+- FastAPI backend.
+- Hybrid analyzer: rule-based extraction plus retrieval from curated reference cases.
+- 100 curated alert/report cases.
+- 5 additional holdout reports not included in the 100-case reference set.
+- Evaluation runner for the 100-case dataset.
+- Holdout smoke runner for new/custom report wording.
 
 ## Project Structure
 
-- `backend/`: API and services for threat report parsing, IOC extraction, TTP mapping, query generation, and hunt packages.
-- `frontend/`: UI for report upload, hunt package review, and query editing.
-- `data/threat_reports/`: sample and future threat reports.
-- `data/log_schemas/`: telemetry schema definitions used by the query generator.
-- `data/query_templates/`: KQL/Splunk/query templates.
-- `data/mitre/`: MITRE mapping references.
-- `data/rag/reference/`: reference docs for RAG-assisted generation.
-- `evaluation/`: test threat reports and expected hunt packages.
+```text
+backend/      FastAPI backend, analyzer, schemas, API routes
+frontend/     React/Vite frontend MVP
+data/         alert catalog, sample reports, query templates, MITRE references
+evaluation/   datasets, runners, generated evaluation reports
+infra/        placeholder for future database/docker/vector store setup
+docs/         deeper project documentation
+scripts/      development helper scripts
+tests/        future cross-module tests
+```
 
-## Guardrail
+Root documents:
 
-The assistant creates investigation guidance and query drafts only. It must not claim the organization is compromised without evidence, and it must not perform containment actions automatically.
+- `README.md`: full app setup and run guide.
+- `DEMO_FLOW.md`: short demo script for presenting the MVP.
+- `BACKEND_SUMMARY.md`: backend summary.
+- `MVP_FINAL_CHECK.md`: latest verification result.
+
+## Requirements
+
+- Python 3.13 or compatible Python 3.x.
+- Node.js 22.x or compatible Node.js.
+- PowerShell on Windows.
+
+Use `npm.cmd` instead of `npm` in PowerShell if script execution policy blocks `npm.ps1`.
+
+## Backend Setup
+
+```powershell
+cd D:\AI20k\team-090\backend
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Run backend:
+
+```powershell
+cd D:\AI20k\team-090\backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+Backend URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+API docs:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Health check:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -UseBasicParsing
+```
+
+## Frontend Setup
+
+Open a second terminal:
+
+```powershell
+cd D:\AI20k\team-090\frontend
+npm.cmd install
+npm.cmd run dev
+```
+
+Frontend URL:
+
+```text
+http://127.0.0.1:5173
+```
+
+## Run The Full App
+
+Use two VS Code terminals:
+
+Terminal 1, backend:
+
+```powershell
+cd D:\AI20k\team-090\backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+Terminal 2, frontend:
+
+```powershell
+cd D:\AI20k\team-090\frontend
+npm.cmd run dev
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5173
+```
+
+## MVP User Flow
+
+1. Select one of the 100 alert cases in the left panel, or paste a custom report.
+2. Review/edit the report title and content.
+3. Click `Analyze`.
+4. Review the generated hunt package:
+   - summary
+   - suspicious behaviors
+   - IOC
+   - MITRE mapping
+   - required telemetry
+   - investigation checklist
+   - query drafts
+   - escalation condition
+5. Analyst uses the output as investigation guidance, not as automatic proof of compromise.
+
+## Evaluation
+
+Run backend unit tests:
+
+```powershell
+cd D:\AI20k\team-090\backend
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Build frontend:
+
+```powershell
+cd D:\AI20k\team-090\frontend
+npm.cmd run build
+```
+
+Run 100-case MVP evaluation:
+
+```powershell
+cd D:\AI20k\team-090
+.\backend\.venv\Scripts\python.exe .\evaluation\runners\run_mvp_evaluation.py
+```
+
+Run holdout smoke test:
+
+```powershell
+cd D:\AI20k\team-090
+.\backend\.venv\Scripts\python.exe .\evaluation\runners\run_holdout_smoke.py
+```
+
+Evaluation outputs are written to:
+
+```text
+evaluation/runs/<timestamp>
+```
+
+Runtime evaluation outputs are ignored by git.
+
+## Stop The App
+
+In each terminal running backend/frontend, press:
+
+```text
+Ctrl + C
+```
+
+If a port remains occupied:
+
+```powershell
+netstat -ano | Select-String ":8000"
+netstat -ano | Select-String ":5173"
+Stop-Process -Id <PID> -Force
+```
+
+## Current Limitation
+
+The hybrid analyzer works well for the curated MVP dataset because it retrieves from known reference cases. For production-level quality, the next step is LLM mode with schema validation, more holdout data, analyst feedback, and persistent database storage.

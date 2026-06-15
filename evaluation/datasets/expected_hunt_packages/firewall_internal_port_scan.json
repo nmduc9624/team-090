@@ -1,0 +1,40 @@
+{
+  "threat_summary": "One internal host attempts connections to many ports or many internal systems.",
+  "key_behaviors": [
+    "network traffic pattern differs from normal baseline",
+    "destination, protocol, domain, or timing is suspicious",
+    "endpoint or identity context should be correlated"
+  ],
+  "ioc": {
+    "domains": [
+      "firewall-internal-port-scan.example"
+    ],
+    "ips": [
+      "203.0.113.79"
+    ],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1071 - Application Layer Protocol"
+  ],
+  "required_telemetry": [
+    "dns",
+    "proxy",
+    "firewall",
+    "edr_process"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: network traffic pattern differs from normal baseline.",
+    "Search relevant telemetry for: destination, protocol, domain, or timing is suspicious.",
+    "Search relevant telemetry for: endpoint or identity context should be correlated.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when internal port scan detected is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

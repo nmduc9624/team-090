@@ -1,0 +1,39 @@
+{
+  "threat_summary": "A known vulnerable driver is loaded and may allow security tool tampering.",
+  "key_behaviors": [
+    "security control or forensic evidence is modified",
+    "change occurs outside approved maintenance activity",
+    "suspicious process or authentication activity appears nearby"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "powershell.exe",
+      "wevtutil.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1562 - Impair Defenses",
+    "T1070 - Indicator Removal"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "edr_registry",
+    "auth"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: security control or forensic evidence is modified.",
+    "Search relevant telemetry for: change occurs outside approved maintenance activity.",
+    "Search relevant telemetry for: suspicious process or authentication activity appears nearby.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when vulnerable driver loaded is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

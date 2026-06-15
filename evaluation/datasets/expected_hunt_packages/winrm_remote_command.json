@@ -1,0 +1,38 @@
+{
+  "threat_summary": "WinRM is used to execute commands remotely outside normal administration.",
+  "key_behaviors": [
+    "remote execution or remote administration activity appears",
+    "source account or host is unusual for this action",
+    "target host shows new process, service, task, or file activity"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "wmic.exe",
+      "psexesvc.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1021 - Remote Services"
+  ],
+  "required_telemetry": [
+    "auth",
+    "edr_process",
+    "windows_service"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: remote execution or remote administration activity appears.",
+    "Search relevant telemetry for: source account or host is unusual for this action.",
+    "Search relevant telemetry for: target host shows new process, service, task, or file activity.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when winrm remote command execution is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

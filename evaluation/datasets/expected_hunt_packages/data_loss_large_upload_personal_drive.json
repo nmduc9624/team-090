@@ -1,0 +1,42 @@
+{
+  "threat_summary": "A user uploads a large archive to a personal cloud storage service.",
+  "key_behaviors": [
+    "large data movement or upload occurs outside normal baseline",
+    "archive or staging activity appears before outbound transfer",
+    "destination is personal, untrusted, or newly observed"
+  ],
+  "ioc": {
+    "domains": [
+      "data-loss-large-upload-personal-drive.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "data_loss_large_upload_personal_drive.bin"
+    ],
+    "processes": [
+      "7z.exe",
+      "chrome.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1567.002 - Exfiltration to Cloud Storage"
+  ],
+  "required_telemetry": [
+    "proxy",
+    "file_events",
+    "edr_process"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: large data movement or upload occurs outside normal baseline.",
+    "Search relevant telemetry for: archive or staging activity appears before outbound transfer.",
+    "Search relevant telemetry for: destination is personal, untrusted, or newly observed.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when large upload to personal cloud drive is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

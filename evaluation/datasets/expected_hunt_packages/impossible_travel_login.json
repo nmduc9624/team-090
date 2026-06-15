@@ -1,0 +1,34 @@
+{
+  "threat_summary": "A user logs in from two distant countries within an impossible travel window, then accesses cloud applications.",
+  "key_behaviors": [
+    "unusual authentication pattern appears for the user",
+    "source IP or device is not part of the user's baseline",
+    "follow-on access occurs after the suspicious login"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1078 - Valid Accounts"
+  ],
+  "required_telemetry": [
+    "auth",
+    "cloud_audit"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: unusual authentication pattern appears for the user.",
+    "Search relevant telemetry for: source IP or device is not part of the user's baseline.",
+    "Search relevant telemetry for: follow-on access occurs after the suspicious login.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when impossible travel login is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

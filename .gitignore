@@ -38,3 +38,5 @@ Thumbs.db
 # Hunt package runtime outputs
 data/hunt_packages/*
 !data/hunt_packages/.gitkeep
+*.tsbuildinfo
+

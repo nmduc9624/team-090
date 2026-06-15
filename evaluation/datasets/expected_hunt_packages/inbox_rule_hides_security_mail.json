@@ -1,0 +1,36 @@
+{
+  "threat_summary": "A mailbox rule moves security notifications or password reset messages to hidden folders.",
+  "key_behaviors": [
+    "mailbox configuration changes after suspicious login",
+    "messages are redirected, hidden, or accessed unusually",
+    "activity may support mailbox compromise or data exposure"
+  ],
+  "ioc": {
+    "domains": [
+      "inbox-rule-hides-security-mail.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1114 - Email Collection"
+  ],
+  "required_telemetry": [
+    "email_audit",
+    "auth"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: mailbox configuration changes after suspicious login.",
+    "Search relevant telemetry for: messages are redirected, hidden, or accessed unusually.",
+    "Search relevant telemetry for: activity may support mailbox compromise or data exposure.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when inbox rule hides security mail is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

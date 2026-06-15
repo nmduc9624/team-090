@@ -1,0 +1,35 @@
+{
+  "threat_summary": "An RDP login occurs outside normal working hours from a new source.",
+  "key_behaviors": [
+    "remote access session appears from unusual source",
+    "session occurs outside baseline or normal working pattern",
+    "internal resource access follows the session"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1133 - External Remote Services",
+    "T1078 - Valid Accounts"
+  ],
+  "required_telemetry": [
+    "auth",
+    "firewall"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: remote access session appears from unusual source.",
+    "Search relevant telemetry for: session occurs outside baseline or normal working pattern.",
+    "Search relevant telemetry for: internal resource access follows the session.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when after-hours rdp login is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

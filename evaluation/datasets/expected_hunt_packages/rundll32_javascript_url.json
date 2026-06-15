@@ -1,0 +1,40 @@
+{
+  "threat_summary": "rundll32.exe is used with JavaScript or URL handler patterns to execute code.",
+  "key_behaviors": [
+    "trusted Windows binary runs with unusual arguments",
+    "binary is used to download, execute, or proxy suspicious code",
+    "network or child process activity follows execution"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [
+      "rundll32_javascript_url.bin"
+    ],
+    "processes": [
+      "rundll32.exe",
+      "regsvr32.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1218 - System Binary Proxy Execution"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "proxy",
+    "dns"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: trusted Windows binary runs with unusual arguments.",
+    "Search relevant telemetry for: binary is used to download, execute, or proxy suspicious code.",
+    "Search relevant telemetry for: network or child process activity follows execution.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when rundll32 javascript url handler is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

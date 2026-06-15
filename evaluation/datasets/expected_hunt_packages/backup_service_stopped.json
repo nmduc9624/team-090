@@ -1,0 +1,38 @@
+{
+  "threat_summary": "Backup or recovery services are stopped unexpectedly.",
+  "key_behaviors": [
+    "recovery, backup, or shadow copy capability is modified",
+    "change occurs shortly before suspicious file activity",
+    "multiple hosts or critical servers may be affected"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "vssadmin.exe",
+      "sc.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1490 - Inhibit System Recovery"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "windows_service",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: recovery, backup, or shadow copy capability is modified.",
+    "Search relevant telemetry for: change occurs shortly before suspicious file activity.",
+    "Search relevant telemetry for: multiple hosts or critical servers may be affected.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when backup service stopped is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

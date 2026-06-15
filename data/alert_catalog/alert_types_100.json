@@ -1,0 +1,802 @@
+[
+  {
+    "slug": "admin_role_assignment_unusual",
+    "alert_name": "Unusual Admin Role Assignment",
+    "alert_source": "Cloud Audit",
+    "severity": "Critical",
+    "category": "Cloud Identity",
+    "status": "new"
+  },
+  {
+    "slug": "anomalous_smb_admin_share_copy",
+    "alert_name": "Large File Copy To Admin Share",
+    "alert_source": "Windows Security",
+    "severity": "Medium",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "asrep_roasting_attempt",
+    "alert_name": "AS-REP Roasting Attempt",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Active Directory",
+    "status": "new"
+  },
+  {
+    "slug": "backup_service_stopped",
+    "alert_name": "Backup Service Stopped",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Ransomware Behavior",
+    "status": "new"
+  },
+  {
+    "slug": "bitsadmin_transfer",
+    "alert_name": "Bitsadmin Suspicious Transfer",
+    "alert_source": "EDR",
+    "severity": "Medium",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "browser_credential_theft",
+    "alert_name": "Browser Credential Theft",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "brute_force_single_account",
+    "alert_name": "Brute Force Against Single Account",
+    "alert_source": "Identity Provider",
+    "severity": "Medium",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "certutil_download_payload",
+    "alert_name": "Certutil Downloads Payload",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "cloud_access_key_used_from_new_geo",
+    "alert_name": "Cloud Access Key Used From New Geography",
+    "alert_source": "Cloud Audit",
+    "severity": "High",
+    "category": "Cloud Security",
+    "status": "new"
+  },
+  {
+    "slug": "cloud_api_key_creation",
+    "alert_name": "Cloud Api Key Creation",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "cloud_iam_policy_admin_attach",
+    "alert_name": "Cloud IAM Admin Policy Attached",
+    "alert_source": "Cloud Audit",
+    "severity": "Critical",
+    "category": "Cloud Security",
+    "status": "new"
+  },
+  {
+    "slug": "cloud_instance_metadata_token_abuse",
+    "alert_name": "Cloud Metadata Credential Access",
+    "alert_source": "Cloud Audit",
+    "severity": "Critical",
+    "category": "Cloud Security",
+    "status": "new"
+  },
+  {
+    "slug": "cloud_storage_public_bucket",
+    "alert_name": "Cloud Storage Bucket Made Public",
+    "alert_source": "Cloud Audit",
+    "severity": "Critical",
+    "category": "Cloud Security",
+    "status": "new"
+  },
+  {
+    "slug": "cmd_obfuscated_command",
+    "alert_name": "Obfuscated Windows Command Shell",
+    "alert_source": "EDR",
+    "severity": "Medium",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "container_privileged_started",
+    "alert_name": "Privileged Container Started",
+    "alert_source": "Container Runtime",
+    "severity": "High",
+    "category": "Container Security",
+    "status": "new"
+  },
+  {
+    "slug": "credential_dump_lsass",
+    "alert_name": "Credential Dump Lsass",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "data_loss_large_upload_personal_drive",
+    "alert_name": "Large Upload To Personal Cloud Drive",
+    "alert_source": "Proxy",
+    "severity": "High",
+    "category": "Data Loss",
+    "status": "new"
+  },
+  {
+    "slug": "dc_sync_replication_request",
+    "alert_name": "DCSync Replication Request",
+    "alert_source": "Windows Security",
+    "severity": "Critical",
+    "category": "Active Directory",
+    "status": "new"
+  },
+  {
+    "slug": "defender_realtime_disabled",
+    "alert_name": "Defender Real-Time Protection Disabled",
+    "alert_source": "EDR",
+    "severity": "Critical",
+    "category": "Defense Evasion",
+    "status": "new"
+  },
+  {
+    "slug": "disabled_mfa_for_user",
+    "alert_name": "MFA Disabled For User",
+    "alert_source": "Identity Provider",
+    "severity": "Critical",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "dns_base64_subdomain_burst",
+    "alert_name": "Base64-Like DNS Subdomain Burst",
+    "alert_source": "DNS",
+    "severity": "High",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "dns_beaconing_regular_interval",
+    "alert_name": "Regular Interval DNS Beaconing",
+    "alert_source": "DNS",
+    "severity": "High",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "dns_many_failed_queries",
+    "alert_name": "High NXDOMAIN Query Rate",
+    "alert_source": "DNS",
+    "severity": "Medium",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "dns_query_dga_domain",
+    "alert_name": "Possible DGA Domain Queries",
+    "alert_source": "DNS",
+    "severity": "Medium",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "dns_tunneling_txt",
+    "alert_name": "Dns Tunneling Txt",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "dormant_account_login",
+    "alert_name": "Dormant Account Login",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "edr_malware_quarantine_failed",
+    "alert_name": "EDR Malware Quarantine Failed",
+    "alert_source": "EDR",
+    "severity": "Critical",
+    "category": "Malware",
+    "status": "new"
+  },
+  {
+    "slug": "excel_mshta_persistence",
+    "alert_name": "Excel Mshta Persistence",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "firewall_blocked_malware_ip",
+    "alert_name": "Firewall Blocks Known Malware IP",
+    "alert_source": "Firewall",
+    "severity": "Medium",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "firewall_internal_port_scan",
+    "alert_name": "Internal Port Scan Detected",
+    "alert_source": "Firewall",
+    "severity": "High",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "firewall_outbound_c2_port",
+    "alert_name": "Outbound Connection To Unusual C2 Port",
+    "alert_source": "Firewall",
+    "severity": "High",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "firewall_rule_added",
+    "alert_name": "Suspicious Firewall Rule Added",
+    "alert_source": "EDR",
+    "severity": "Medium",
+    "category": "Defense Evasion",
+    "status": "new"
+  },
+  {
+    "slug": "golden_ticket_suspicious_kerberos",
+    "alert_name": "Suspicious Kerberos Ticket Lifetime",
+    "alert_source": "Windows Security",
+    "severity": "Critical",
+    "category": "Active Directory",
+    "status": "new"
+  },
+  {
+    "slug": "hollowing_suspected",
+    "alert_name": "Process Hollowing Suspected",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "impossible_travel_login",
+    "alert_name": "Impossible Travel Login",
+    "alert_source": "Identity Provider",
+    "severity": "Medium",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "inbox_rule_hides_security_mail",
+    "alert_name": "Inbox Rule Hides Security Mail",
+    "alert_source": "Email Security",
+    "severity": "Medium",
+    "category": "Email",
+    "status": "new"
+  },
+  {
+    "slug": "installutil_proxy_execution",
+    "alert_name": "InstallUtil Proxy Execution",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "kerberoasting_spn_requests",
+    "alert_name": "Kerberoasting Service Ticket Spike",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Active Directory",
+    "status": "new"
+  },
+  {
+    "slug": "kubernetes_exec_into_pod",
+    "alert_name": "Kubernetes Exec Into Pod",
+    "alert_source": "Kubernetes Audit",
+    "severity": "Medium",
+    "category": "Kubernetes Security",
+    "status": "new"
+  },
+  {
+    "slug": "kubernetes_secret_read_spike",
+    "alert_name": "Kubernetes Secret Read Spike",
+    "alert_source": "Kubernetes Audit",
+    "severity": "High",
+    "category": "Kubernetes Security",
+    "status": "new"
+  },
+  {
+    "slug": "ldap_recon_many_queries",
+    "alert_name": "LDAP Reconnaissance Query Spike",
+    "alert_source": "Windows Security",
+    "severity": "Medium",
+    "category": "Active Directory",
+    "status": "new"
+  },
+  {
+    "slug": "linux_cron_persistence",
+    "alert_name": "Linux Cron Persistence",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "linux_crypto_miner_process",
+    "alert_name": "Linux Crypto Miner Process",
+    "alert_source": "Linux EDR",
+    "severity": "High",
+    "category": "Malware",
+    "status": "new"
+  },
+  {
+    "slug": "linux_new_root_user",
+    "alert_name": "New UID 0 User Created",
+    "alert_source": "Linux Audit",
+    "severity": "Critical",
+    "category": "Linux Privilege",
+    "status": "new"
+  },
+  {
+    "slug": "linux_reverse_shell",
+    "alert_name": "Linux Reverse Shell Pattern",
+    "alert_source": "Linux EDR",
+    "severity": "High",
+    "category": "Linux Execution",
+    "status": "new"
+  },
+  {
+    "slug": "linux_sensitive_file_read",
+    "alert_name": "Sensitive Linux File Read",
+    "alert_source": "Linux Audit",
+    "severity": "Medium",
+    "category": "Linux Discovery",
+    "status": "new"
+  },
+  {
+    "slug": "linux_ssh_bruteforce",
+    "alert_name": "Linux SSH Brute Force",
+    "alert_source": "Linux Auth",
+    "severity": "Medium",
+    "category": "Linux Identity",
+    "status": "new"
+  },
+  {
+    "slug": "linux_sudoers_modified",
+    "alert_name": "Linux Sudoers File Modified",
+    "alert_source": "Linux Audit",
+    "severity": "High",
+    "category": "Linux Privilege",
+    "status": "new"
+  },
+  {
+    "slug": "lnk_powershell_delivery",
+    "alert_name": "Lnk Powershell Delivery",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "login_from_tor_exit_node",
+    "alert_name": "Login From Tor Exit Node",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "lolbin_suspicious_chain",
+    "alert_name": "Chained LOLBin Execution",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "lsass_handle_access",
+    "alert_name": "Suspicious LSASS Handle Access",
+    "alert_source": "EDR",
+    "severity": "Critical",
+    "category": "Credential Access",
+    "status": "new"
+  },
+  {
+    "slug": "mailbox_forwarding_rule_external",
+    "alert_name": "Mailbox Forwarding Rule To External Address",
+    "alert_source": "Email Security",
+    "severity": "High",
+    "category": "Email",
+    "status": "new"
+  },
+  {
+    "slug": "malicious_npm_postinstall",
+    "alert_name": "Malicious Npm Postinstall",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "mass_file_download_saas",
+    "alert_name": "Mass File Download From SaaS",
+    "alert_source": "SaaS Audit",
+    "severity": "High",
+    "category": "SaaS",
+    "status": "new"
+  },
+  {
+    "slug": "msbuild_inline_task",
+    "alert_name": "MSBuild Inline Task Execution",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "new_service_install",
+    "alert_name": "New Service Install",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "oauth_consent_abuse",
+    "alert_name": "Oauth Consent Abuse",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "office_macro_child_process",
+    "alert_name": "Office Macro Child Process",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "password_spray_many_users",
+    "alert_name": "Password Spray Against Many Users",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "powershell_amsi_bypass",
+    "alert_name": "PowerShell AMSI Bypass String",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Defense Evasion",
+    "status": "new"
+  },
+  {
+    "slug": "powershell_download_cradle",
+    "alert_name": "PowerShell Download Cradle",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "powershell_encoded_loader",
+    "alert_name": "Powershell Encoded Loader",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "process_injection_suspected",
+    "alert_name": "Process Injection Suspected",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "proxy_new_domain_executable_download",
+    "alert_name": "Executable Download From Newly Registered Domain",
+    "alert_source": "Proxy",
+    "severity": "High",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "proxy_suspicious_user_agent",
+    "alert_name": "Suspicious User-Agent Beacon",
+    "alert_source": "Proxy",
+    "severity": "Medium",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "proxy_tor2web_access",
+    "alert_name": "Tor2Web Proxy Access",
+    "alert_source": "Proxy",
+    "severity": "Medium",
+    "category": "Network",
+    "status": "new"
+  },
+  {
+    "slug": "psexec_service_execution",
+    "alert_name": "PsExec-Like Service Execution",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "rare_process_from_user_profile",
+    "alert_name": "Rare Process From User Profile",
+    "alert_source": "EDR",
+    "severity": "Medium",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "rclone_data_staging",
+    "alert_name": "Rclone Data Staging",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "rdp_login_after_hours",
+    "alert_name": "After-Hours RDP Login",
+    "alert_source": "Windows Security",
+    "severity": "Medium",
+    "category": "Remote Access",
+    "status": "new"
+  },
+  {
+    "slug": "regsvr32_scriptlet_execution",
+    "alert_name": "Regsvr32 Scriptlet Execution",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "remote_registry_enabled",
+    "alert_name": "Remote Registry Service Enabled",
+    "alert_source": "Windows Security",
+    "severity": "Medium",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "risky_oauth_app_granted",
+    "alert_name": "Risky OAuth App Granted Tenant Permissions",
+    "alert_source": "Cloud Audit",
+    "severity": "Critical",
+    "category": "Cloud Identity",
+    "status": "new"
+  },
+  {
+    "slug": "rundll32_javascript_url",
+    "alert_name": "Rundll32 JavaScript URL Handler",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Signed Binary Abuse",
+    "status": "new"
+  },
+  {
+    "slug": "rundll32_remote_payload",
+    "alert_name": "Rundll32 Remote Payload",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "scheduled_task_persistence",
+    "alert_name": "Scheduled Task Persistence",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "scheduled_task_remote_creation",
+    "alert_name": "Remote Scheduled Task Created",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "security_log_cleared",
+    "alert_name": "Windows Security Log Cleared",
+    "alert_source": "Windows Security",
+    "severity": "Critical",
+    "category": "Defense Evasion",
+    "status": "new"
+  },
+  {
+    "slug": "service_account_interactive_login",
+    "alert_name": "Service Account Interactive Login",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "shadow_copy_deleted",
+    "alert_name": "Volume Shadow Copies Deleted",
+    "alert_source": "EDR",
+    "severity": "Critical",
+    "category": "Ransomware Behavior",
+    "status": "new"
+  },
+  {
+    "slug": "smb_lateral_movement",
+    "alert_name": "Smb Lateral Movement",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "successful_login_after_failures",
+    "alert_name": "Successful Login After Repeated Failures",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "suspicious_driver_load",
+    "alert_name": "Suspicious Driver Load",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "suspicious_mfa_device_registration",
+    "alert_name": "Suspicious MFA Device Registration",
+    "alert_source": "Identity Provider",
+    "severity": "High",
+    "category": "Identity",
+    "status": "new"
+  },
+  {
+    "slug": "suspicious_mfa_push_fatigue",
+    "alert_name": "Suspicious Mfa Push Fatigue",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "suspicious_parent_child_cmd_from_word",
+    "alert_name": "Word Launches Command Shell",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Office Malware",
+    "status": "new"
+  },
+  {
+    "slug": "suspicious_temp_executable_run",
+    "alert_name": "Executable Runs From Temp Directory",
+    "alert_source": "EDR",
+    "severity": "Medium",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "suspicious_wmi_remote_process",
+    "alert_name": "Remote Process Creation Via WMI",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "unsigned_binary_system32",
+    "alert_name": "Unsigned Binary In System32",
+    "alert_source": "EDR",
+    "severity": "High",
+    "category": "Endpoint Execution",
+    "status": "new"
+  },
+  {
+    "slug": "vpn_login_from_new_country",
+    "alert_name": "VPN Login From New Country",
+    "alert_source": "VPN",
+    "severity": "Medium",
+    "category": "Remote Access",
+    "status": "new"
+  },
+  {
+    "slug": "vulnerable_driver_loaded",
+    "alert_name": "Vulnerable Driver Loaded",
+    "alert_source": "EDR",
+    "severity": "Critical",
+    "category": "Defense Evasion",
+    "status": "new"
+  },
+  {
+    "slug": "web_admin_panel_bruteforce",
+    "alert_name": "Admin Panel Brute Force",
+    "alert_source": "Web Server",
+    "severity": "Medium",
+    "category": "Web Attack",
+    "status": "new"
+  },
+  {
+    "slug": "web_file_upload_executable",
+    "alert_name": "Executable File Uploaded To Web App",
+    "alert_source": "Web Server",
+    "severity": "High",
+    "category": "Web Attack",
+    "status": "new"
+  },
+  {
+    "slug": "web_path_traversal_attempt",
+    "alert_name": "Path Traversal Attempt Against Web Server",
+    "alert_source": "Web Server",
+    "severity": "Medium",
+    "category": "Web Attack",
+    "status": "new"
+  },
+  {
+    "slug": "web_rce_attempt",
+    "alert_name": "Remote Code Execution Attempt Against Web App",
+    "alert_source": "Web Server",
+    "severity": "High",
+    "category": "Web Attack",
+    "status": "new"
+  },
+  {
+    "slug": "web_sql_injection_attempt",
+    "alert_name": "SQL Injection Attempt Against Web App",
+    "alert_source": "Web Server",
+    "severity": "Medium",
+    "category": "Web Attack",
+    "status": "new"
+  },
+  {
+    "slug": "webshell_upload",
+    "alert_name": "Webshell Upload",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  },
+  {
+    "slug": "winrm_remote_command",
+    "alert_name": "WinRM Remote Command Execution",
+    "alert_source": "Windows Security",
+    "severity": "High",
+    "category": "Lateral Movement",
+    "status": "new"
+  },
+  {
+    "slug": "wmi_event_persistence",
+    "alert_name": "Wmi Event Persistence",
+    "alert_source": "Mixed SOC Telemetry",
+    "severity": "Medium/High",
+    "category": "Existing MVP Scenario",
+    "status": "existing"
+  }
+]

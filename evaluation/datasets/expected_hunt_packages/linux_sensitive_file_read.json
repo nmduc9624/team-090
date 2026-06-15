@@ -1,0 +1,37 @@
+{
+  "threat_summary": "A process reads sensitive files such as passwd, shadow, SSH keys or cloud credentials.",
+  "key_behaviors": [
+    "sensitive local files are accessed unexpectedly",
+    "accessing process is not normal administration tooling",
+    "archive, staging, or outbound upload activity may follow"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "cat",
+      "python"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1005 - Data from Local System"
+  ],
+  "required_telemetry": [
+    "linux_audit",
+    "file_events"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: sensitive local files are accessed unexpectedly.",
+    "Search relevant telemetry for: accessing process is not normal administration tooling.",
+    "Search relevant telemetry for: archive, staging, or outbound upload activity may follow.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when sensitive linux file read is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

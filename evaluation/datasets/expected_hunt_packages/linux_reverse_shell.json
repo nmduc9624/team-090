@@ -1,0 +1,38 @@
+{
+  "threat_summary": "A shell process connects outbound to an external IP.",
+  "key_behaviors": [
+    "Linux shell or process starts suspicious command activity",
+    "process connects externally or downloads content",
+    "parent process is unusual for interactive shell behavior"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "bash",
+      "sh"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1059.004 - Unix Shell"
+  ],
+  "required_telemetry": [
+    "linux_process",
+    "proxy",
+    "firewall"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: Linux shell or process starts suspicious command activity.",
+    "Search relevant telemetry for: process connects externally or downloads content.",
+    "Search relevant telemetry for: parent process is unusual for interactive shell behavior.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when linux reverse shell pattern is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

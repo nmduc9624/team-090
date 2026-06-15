@@ -1,0 +1,41 @@
+{
+  "threat_summary": "A web app receives an uploaded executable or script file type.",
+  "key_behaviors": [
+    "web request contains exploit, brute force, or suspicious upload pattern",
+    "same source repeats probing or exploitation attempts",
+    "server-side process or file activity should be checked"
+  ],
+  "ioc": {
+    "domains": [
+      "web-file-upload-executable.example"
+    ],
+    "ips": [
+      "203.0.113.85"
+    ],
+    "hashes": [],
+    "files": [
+      "web_file_upload_executable.bin"
+    ],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1190 - Exploit Public-Facing Application"
+  ],
+  "required_telemetry": [
+    "web_server",
+    "firewall",
+    "edr_process"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: web request contains exploit, brute force, or suspicious upload pattern.",
+    "Search relevant telemetry for: same source repeats probing or exploitation attempts.",
+    "Search relevant telemetry for: server-side process or file activity should be checked.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when executable file uploaded to web app is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

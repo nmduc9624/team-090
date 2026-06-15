@@ -1,0 +1,38 @@
+{
+  "threat_summary": "Outbound HTTP traffic uses a rare user-agent repeatedly from one host.",
+  "key_behaviors": [
+    "network traffic pattern differs from normal baseline",
+    "destination, protocol, domain, or timing is suspicious",
+    "endpoint or identity context should be correlated"
+  ],
+  "ioc": {
+    "domains": [
+      "proxy-suspicious-user-agent.example"
+    ],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1071 - Application Layer Protocol"
+  ],
+  "required_telemetry": [
+    "dns",
+    "proxy",
+    "firewall",
+    "edr_process"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: network traffic pattern differs from normal baseline.",
+    "Search relevant telemetry for: destination, protocol, domain, or timing is suspicious.",
+    "Search relevant telemetry for: endpoint or identity context should be correlated.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when suspicious user-agent beacon is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

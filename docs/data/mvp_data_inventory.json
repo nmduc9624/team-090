@@ -1,9 +1,11 @@
 {
-  "threat_reports": 20,
-  "expected_hunt_packages": 20,
-  "log_schema_files": 1,
-  "query_templates": 10,
+  "threat_reports": 100,
+  "evaluation_threat_reports": 100,
+  "expected_hunt_packages": 100,
+  "alert_catalog_entries": 100,
+  "log_schema_files": 2,
+  "query_templates": 13,
   "mitre_mappings": 30,
   "ioc_patterns": 20,
-  "status": "MVP minimum data complete"
+  "status": "MVP alert dataset expanded to 100 distinct alert scenarios"
 }

@@ -1,0 +1,37 @@
+{
+  "threat_summary": "A non-standard process opens LSASS with high privileges.",
+  "key_behaviors": [
+    "process accesses credential material or sensitive memory",
+    "actor or process is not part of normal security tooling",
+    "credential access is followed by authentication or lateral movement"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "lsass.exe",
+      "procdump.exe"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1003 - OS Credential Dumping"
+  ],
+  "required_telemetry": [
+    "edr_process",
+    "auth"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: process accesses credential material or sensitive memory.",
+    "Search relevant telemetry for: actor or process is not part of normal security tooling.",
+    "Search relevant telemetry for: credential access is followed by authentication or lateral movement.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when suspicious lsass handle access is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}

@@ -1,0 +1,37 @@
+{
+  "threat_summary": "A container starts with privileged mode or host namespace access.",
+  "key_behaviors": [
+    "container runtime action weakens isolation",
+    "image, namespace, or host mount differs from approved deployment",
+    "host-level access or suspicious process activity may follow"
+  ],
+  "ioc": {
+    "domains": [],
+    "ips": [],
+    "hashes": [],
+    "files": [],
+    "processes": [
+      "containerd",
+      "dockerd"
+    ],
+    "registry_keys": []
+  },
+  "mitre_mapping": [
+    "T1611 - Escape to Host"
+  ],
+  "required_telemetry": [
+    "cloud_audit",
+    "linux_process"
+  ],
+  "hunt_checklist": [
+    "Search relevant telemetry for: container runtime action weakens isolation.",
+    "Search relevant telemetry for: image, namespace, or host mount differs from approved deployment.",
+    "Search relevant telemetry for: host-level access or suspicious process activity may follow.",
+    "Correlate activity by user, host, source IP, destination, and time window.",
+    "Confirm whether the behavior is expected business activity before escalation."
+  ],
+  "query_drafts": [],
+  "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+  "escalation_condition": "Escalate when privileged container started is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+  "analyst_notes": "Synthetic expected output for MVP evaluation. AI-generated results should be reviewed by an analyst before operational use."
+}
