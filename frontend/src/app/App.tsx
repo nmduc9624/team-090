@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -306,7 +306,19 @@ export function App() {
               onClick={() => void loadSample(report.slug)}
               type="button"
             >
-              <span className="case-name">{report.alert_name}</span>
+              <span
+                className="case-name"
+                style={{
+                  fontSize:
+                    report.alert_name.length > 35
+                      ? "11px"
+                      : report.alert_name.length > 25
+                      ? "12px"
+                      : "14px",
+                }}
+              >
+                {report.alert_name}
+              </span>
               <span className="case-meta">
                 <span className={severityClass(report.severity)}>{report.severity}</span>
                 <span>{report.alert_source}</span>
