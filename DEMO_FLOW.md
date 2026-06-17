@@ -1,4 +1,4 @@
-﻿# MVP Demo Flow
+# MVP Demo Flow
 
 This is a short demo script for presenting the AI Threat Intel to Hunt Package Assistant MVP.
 
@@ -7,20 +7,28 @@ This is a short demo script for presenting the AI Threat Intel to Hunt Package A
 Show that a SOC junior analyst can paste or select an alert/report and quickly receive a structured hunt package that explains what to investigate next.
 
 ## Demo Setup
-
-Open two VS Code terminals.
+Setting up the environment  
+```powershell
+python -m venv .venv
+.venv/scripts/activate
+pip install -r requirements.txt
+```
+Open two VS Code terminals.   
 
 Terminal 1:
 
+
+
 ```powershell
-cd D:\AI20k\team-090\backend
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+cd backend
+uvicorn app.main:app --reload
 ```
 
 Terminal 2:
 
 ```powershell
-cd D:\AI20k\team-090\frontend
+cd ../frontend
+npm install
 npm.cmd run dev
 ```
 
