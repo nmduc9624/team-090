@@ -1,4 +1,4 @@
-﻿import json
+import json
 import re
 from dataclasses import dataclass
 from functools import lru_cache
@@ -15,6 +15,14 @@ STOPWORDS = {
     "note", "synthetic", "mvp", "none", "data", "type", "case", "source", "severity",
 }
 
+INTENT_KEYWORDS = {
+    "oauth_saas": {"oauth", "consent", "app", "application", "slack", "teams", "workspace", "channel", "saas", "permission", "permissions"},
+    "data_export": {"export", "exports", "download", "downloads", "file", "files", "private", "channel", "archive", "zip"},
+    "cloud_iam": {"iam", "admin", "policy", "role", "bucket", "access", "metadata"},
+    "identity": {"login", "mfa", "password", "account", "tor", "vpn", "device", "session"},
+    "endpoint": {"powershell", "mshta", "registry", "lsass", "rundll32", "excel.exe", "winword.exe"},
+}
+
 
 @dataclass(frozen=True)
 class ReferenceHuntPackage:
@@ -22,6 +30,7 @@ class ReferenceHuntPackage:
     title: str
     content: str
     tokens: frozenset[str]
+    intents: frozenset[str]
     expected: dict[str, Any]
     score: float = 0.0
 
@@ -38,6 +47,17 @@ def _tokenize(text: str) -> set[str]:
             continue
         tokens.add(token)
     return tokens
+
+
+def _detect_intents(tokens: set[str], text: str) -> set[str]:
+    lower = text.lower()
+    intents = set()
+    for intent, keywords in INTENT_KEYWORDS.items():
+        if tokens & keywords or any(keyword in lower for keyword in keywords if " " in keyword or "." in keyword):
+            intents.add(intent)
+    if "oauth_saas" in intents and "data_export" in intents:
+        intents.add("saas_data_export")
+    return intents
 
 
 def _title_from_report(content: str, fallback: str) -> str:
@@ -73,19 +93,21 @@ def load_reference_hunt_packages() -> tuple[ReferenceHuntPackage, ...]:
                 "\n".join(expected.get("required_telemetry", [])),
             ]
         )
+        tokens = _tokenize(searchable)
         references.append(
             ReferenceHuntPackage(
                 slug=sample_path.stem,
                 title=title,
                 content=content,
-                tokens=frozenset(_tokenize(searchable)),
+                tokens=frozenset(tokens),
+                intents=frozenset(_detect_intents(tokens, searchable)),
                 expected=expected,
             )
         )
     return tuple(references)
 
 
-def _score(query_tokens: set[str], reference: ReferenceHuntPackage, query_text: str) -> float:
+def _score(query_tokens: set[str], query_intents: set[str], reference: ReferenceHuntPackage, query_text: str) -> float:
     if not query_tokens or not reference.tokens:
         return 0.0
     overlap = len(query_tokens & reference.tokens)
@@ -96,22 +118,46 @@ def _score(query_tokens: set[str], reference: ReferenceHuntPackage, query_text: 
     title_tokens = _tokenize(reference.title)
     slug_boost = len(query_tokens & slug_tokens) / max(len(slug_tokens), 1)
     title_boost = len(query_tokens & title_tokens) / max(len(title_tokens), 1)
+    intent_overlap = len(query_intents & set(reference.intents)) / max(len(query_intents), 1)
     exact_boost = 0.0
     normalized_title = reference.title.lower().replace("alert report:", "").strip()
     if normalized_title and normalized_title in query_text.lower():
         exact_boost = 0.35
 
-    return round((jaccard * 0.45) + (slug_boost * 0.20) + (title_boost * 0.30) + exact_boost, 6)
+    penalty = 0.0
+    if "saas_data_export" in query_intents and "cloud_iam" in reference.intents and not (query_tokens & {"iam", "admin", "policy", "role"}):
+        penalty += 0.18
+    if "oauth_saas" in query_intents and "endpoint" in reference.intents and not (query_intents & {"endpoint"}):
+        penalty += 0.12
+
+    return round((jaccard * 0.35) + (slug_boost * 0.15) + (title_boost * 0.25) + (intent_overlap * 0.35) + exact_boost - penalty, 6)
 
 
 def retrieve_similar_hunt_package(title: str, content: str, min_score: float = 0.08) -> ReferenceHuntPackage | None:
     query_text = f"{title}\n{content}"
     query_tokens = _tokenize(query_text)
+    query_intents = _detect_intents(query_tokens, query_text)
+    references = load_reference_hunt_packages()
+
+    normalized_query_title = title.lower().replace("alert report:", "").replace("test report:", "").strip()
+    for reference in references:
+        normalized_ref_title = reference.title.lower().replace("alert report:", "").replace("test report:", "").strip()
+        if normalized_query_title and normalized_ref_title and normalized_query_title == normalized_ref_title:
+            return ReferenceHuntPackage(
+                slug=reference.slug,
+                title=reference.title,
+                content=reference.content,
+                tokens=reference.tokens,
+                intents=reference.intents,
+                expected=reference.expected,
+                score=1.0,
+            )
+
     best: ReferenceHuntPackage | None = None
     best_score = 0.0
 
-    for reference in load_reference_hunt_packages():
-        score = _score(query_tokens, reference, query_text)
+    for reference in references:
+        score = _score(query_tokens, query_intents, reference, query_text)
         if score > best_score:
             best = reference
             best_score = score
@@ -124,6 +170,7 @@ def retrieve_similar_hunt_package(title: str, content: str, min_score: float = 0
         title=best.title,
         content=best.content,
         tokens=best.tokens,
+        intents=best.intents,
         expected=best.expected,
         score=best_score,
     )

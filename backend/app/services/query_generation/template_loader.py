@@ -26,8 +26,18 @@ def list_query_templates() -> list[QueryTemplate]:
     return templates
 
 
+def _meaningful_text(text: str) -> str:
+    lines = []
+    for line in text.splitlines():
+        lower = line.strip().lower()
+        if lower.endswith(": none") or lower.endswith(" none"):
+            continue
+        lines.append(line)
+    return "\n".join(lines).lower()
+
+
 def find_templates_for_text(text: str) -> list[QueryTemplate]:
-    lower = text.lower()
+    lower = _meaningful_text(text)
     templates = list_query_templates()
     selected: list[QueryTemplate] = []
     keyword_map = {
@@ -37,7 +47,19 @@ def find_templates_for_text(text: str) -> list[QueryTemplate]:
         "txt": ["dns"],
         "registry": ["registry", "runkey"],
         "run key": ["registry", "runkey"],
-        "oauth": ["oauth"],
+        "oauth": ["oauth", "saas"],
+        "consent": ["oauth", "saas"],
+        "slack": ["oauth", "saas"],
+        "github": ["oauth", "saas", "developer"],
+        "gitlab": ["oauth", "saas", "developer"],
+        "repository": ["developer"],
+        "repositories": ["developer"],
+        "deploy key": ["developer"],
+        "secrets": ["developer"],
+        "saas": ["oauth", "saas"],
+        "channel history": ["oauth", "saas"],
+        "private channel": ["oauth", "saas"],
+        "export": ["saas"],
         "service": ["service", "lateral"],
         "admin$": ["service", "lateral"],
         "mshta": ["process", "registry", "network"],
@@ -47,9 +69,29 @@ def find_templates_for_text(text: str) -> list[QueryTemplate]:
     for token, names in keyword_map.items():
         if token in lower:
             wanted.update(names)
+
+    developer_platform_context = any(
+        token in lower
+        for token in ["github", "gitlab", "bitbucket", "repository", "repositories", "deploy key", "secrets metadata"]
+    ) and any(token in lower for token in ["oauth", "authorization", "app", "permission", "permissions"])
+    if not developer_platform_context:
+        wanted.discard("developer")
+
+    if not wanted:
+        return []
+
+    # SaaS/OAuth reports should not pull endpoint templates merely because the
+    # indicator block contains fields such as "registry_keys: none".
+    saas_oauth_context = bool({"oauth", "saas"} & wanted)
+    endpoint_context = any(token in lower for token in [".exe", "registry key", "run key", "mshta", "powershell", "lsass", "rundll32"])
+    if saas_oauth_context and not endpoint_context:
+        wanted -= {"process", "registry", "runkey", "network", "powershell", "service", "lateral"}
+
     for template in templates:
         name = template.name.lower()
-        content = template.content.lower()
-        if any(w in name or w in content for w in wanted):
+        if any(w in name for w in wanted):
             selected.append(template)
-    return selected[:4] if selected else templates[:2]
+
+    if selected:
+        return selected[:4]
+    return []

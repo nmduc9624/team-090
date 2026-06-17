@@ -1,0 +1,11 @@
+// Hunt for developer-platform OAuth app access to repositories, secrets metadata, or deploy keys.
+CloudAppEvents
+| where Timestamp > ago(7d)
+| where Application has_any ("GitHub", "GitLab", "Bitbucket") or ObjectName has_any ("repository", "repo", "deploy key", "secret")
+| where ActionType has_any ("OAuthAppAuthorized", "RepositoryAccessed", "RepoCloned", "SecretRead", "DeployKeyCreated", "ApplicationConsent")
+| project Timestamp, AccountDisplayName, Application, ActionType, ObjectName, IPAddress
+;
+AuditLogs
+| where TimeGenerated > ago(7d)
+| where OperationName has_any ("OAuth", "Consent", "Deploy key", "Repository", "Secret")
+| project TimeGenerated, InitiatedBy, OperationName, TargetResources, Result

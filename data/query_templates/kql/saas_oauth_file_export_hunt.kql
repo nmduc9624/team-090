@@ -1,0 +1,11 @@
+// Hunt for risky SaaS OAuth app consent followed by file or channel export activity.
+AuditLogs
+| where TimeGenerated > ago(7d)
+| where OperationName has_any ("Consent", "Add service principal", "OAuth", "App installed", "App authorization")
+| where TargetResources has_any ("Files.Read", "Files.Read.All", "ChannelMessage.Read", "offline_access")
+| project TimeGenerated, InitiatedBy, OperationName, TargetResources, Result
+;
+CloudAppEvents
+| where Timestamp > ago(7d)
+| where ActionType has_any ("FileDownloaded", "FileAccessed", "FileExported", "ChannelRead", "DataExport")
+| project Timestamp, AccountDisplayName, Application, ActionType, ObjectName, IPAddress
