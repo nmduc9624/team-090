@@ -1,52 +1,29 @@
-# PR Merged Evidence
+# PR Merge Evidence
 
-## Current Status
+This file tracks the merge requirement for the cohort repo.
 
-Requirement: repo has at least 10 merged PRs.
+## Verified History In This Repo Snapshot
 
-Current local verification on 2026-06-17:
+The current local git history shows these merged PRs on `main`:
 
-```text
-git branch --all
-* main
-  remotes/origin/HEAD -> origin/main
-  remotes/origin/main
-```
+| PR | Branch | Status |
+|---:|---|---|
+| 1 | `NguyenMinhDuc` | merged |
+| 2 | `backend-core` | merged |
+| 3 | `Analyzer-backend` | merged |
+| 4 | `future-app-components` | merged |
 
-The local repository does not contain pull request metadata. Because PR merge history lives on GitHub, this requirement cannot be truthfully completed from local files alone.
+The `Gia-Tuan` branch contains additional dataset and frontend work, but it has not been merged into `main` in this local history snapshot.
 
-## How To Complete This Requirement On GitHub
+## What Still Needs To Happen
 
-Create and merge at least 10 small PRs against `main`. Suggested PR breakdown:
+- Merge the remaining team branches into `main`.
+- Confirm that the GitHub PR count reaches at least 10 merged PRs.
+- Update this document after each merge so the history stays auditable.
 
-| PR | Scope |
-| --- | --- |
-| 1 | Backend health and analyze endpoint documentation |
-| 2 | Frontend user flow polish |
-| 3 | 100 alert catalog data |
-| 4 | Query template set |
-| 5 | Evaluation runner |
-| 6 | Holdout smoke tests |
-| 7 | SaaS OAuth guardrail |
-| 8 | Developer Platform OAuth guardrail |
-| 9 | Architecture and demo documentation |
-| 10 | README setup and final verification docs |
+## Verification Checklist
 
-## Evidence To Capture After Merge
-
-After the PRs are merged, update this file with:
-
-```text
-Repository: https://github.com/nmduc9624/team-090
-Merged PR count: 10+
-PR links:
-- https://github.com/nmduc9624/team-090/pull/<number>
-```
-
-You can verify from the GitHub CLI with:
-
-```powershell
-gh pr list --state merged --limit 20
-```
-
-This file is intentionally written as a truthful status/evidence checklist, not as a fake record of PRs that do not yet exist.
+- [ ] `git log --oneline --decorate --graph --all` shows the merged PR chain.
+- [ ] Every branch merged into `main` has a matching GitHub PR.
+- [ ] The final `main` branch contains the frontend, data, evaluation, and docs artifacts.
+- [ ] The repository has at least 10 merged PRs visible in GitHub.

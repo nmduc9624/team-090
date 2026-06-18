@@ -1,0 +1,42 @@
+﻿# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+.vite/
+coverage/
+
+# Data/runtime outputs
+data/uploads/*
+!data/uploads/.gitkeep
+data/exports/*
+!data/exports/.gitkeep
+data/embeddings/*
+!data/embeddings/.gitkeep
+evaluation/runs/*
+!evaluation/runs/.gitkeep
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# Hunt package runtime outputs
+data/hunt_packages/*
+!data/hunt_packages/.gitkeep
+*.tsbuildinfo
+
