@@ -1,0 +1,4 @@
+# Draft SPL for developer-platform OAuth abuse
+# Review sourcetype and field names before running in production.
+index=* (oauth OR deploy_key OR repository_secrets)
+| table _time user action repository src_ip user_agent
