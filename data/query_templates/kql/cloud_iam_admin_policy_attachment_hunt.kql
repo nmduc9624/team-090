@@ -1,0 +1,9 @@
+// Generic cloud IAM admin policy or privileged role assignment hunt.
+// Review table and field names against the real cloud audit schema before running.
+CloudAuditLogs
+| where TimeGenerated > ago(24h)
+| where OperationName has_any ("AttachPolicy", "AttachRolePolicy", "AttachUserPolicy", "SetIamPolicy", "Add role assignment", "CreateRoleAssignment")
+| where PolicyName has_any ("Admin", "Administrator", "Owner", "Privileged")
+   or RoleName has_any ("Admin", "Administrator", "Owner", "Privileged")
+   or TargetResources has_any ("Admin", "Administrator", "Owner", "Privileged")
+| project TimeGenerated, OperationName, InitiatedBy, Actor=InitiatedBy, TargetResources, Resource, PolicyName, RoleName, SourceIpAddress, UserAgent

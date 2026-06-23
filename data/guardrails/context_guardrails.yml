@@ -1,0 +1,81 @@
+contexts:
+  kerberos_ad:
+    allow_telemetry: [auth, windows_security, active_directory, domain_controller, kerberos]
+    require_telemetry: [auth]
+    allow_mitre_prefixes: [T1558, T1558.001, T1558.002, T1558.003, T1558.004, T1003.006, T1078, T1087]
+    block: [cloud iam, admin policy, cloud instance metadata, oauth, deploy key, registry run key, mshta, bucket]
+  mfa_fatigue:
+    allow_telemetry: [auth, cloud_audit, email_audit, proxy]
+    require_telemetry: [auth]
+    allow_mitre_prefixes: [T1621, T1078, T1098, T1114]
+    block: [mshta, registry run key, lsass, kerberos, cloud iam admin policy]
+  password_spray:
+    allow_telemetry: [auth, proxy, cloud_audit]
+    require_telemetry: [auth]
+    allow_mitre_prefixes: [T1110.003, T1110, T1078]
+    block: [mshta, registry run key, lsass, oauth consent, cloud iam]
+  cloud_iam:
+    allow_telemetry: [cloud_audit, auth, proxy]
+    require_telemetry: [cloud_audit, auth]
+    allow_mitre_prefixes: [T1098, T1098.003, T1078.004]
+    block: [windows service, remote service execution, cloud instance metadata, 169.254.169.254, mshta, registry run key, lsass]
+  cloud_storage:
+    allow_telemetry: [cloud_audit, auth, proxy]
+    require_telemetry: [cloud_audit]
+    allow_mitre_prefixes: [T1530, T1567.002, T1078.004, T1098]
+    block: [mshta, registry run key, lsass, cloud instance metadata, deploy key]
+  cloud_metadata:
+    allow_telemetry: [cloud_audit, auth, proxy, edr_process]
+    require_telemetry: [cloud_audit]
+    allow_mitre_prefixes: [T1552.005, T1078.004, T1098]
+    block: [registry run key, mshta, oauth consent, deploy key]
+  saas_oauth:
+    allow_telemetry: [cloud_audit, auth, email_audit, proxy]
+    require_telemetry: [cloud_audit, auth]
+    allow_mitre_prefixes: [T1528, T1530, T1567.002, T1078, T1098]
+    block: [mshta, registry run key, lsass, windows registry]
+  developer_platform:
+    allow_telemetry: [cloud_audit, auth, proxy, github_audit, gitlab_audit]
+    require_telemetry: [cloud_audit, auth]
+    allow_mitre_prefixes: [T1528, T1098, T1552, T1530, T1078]
+    block: [mshta, registry run key, lsass, windows registry, cloud instance metadata]
+  linux:
+    allow_telemetry: [linux_process, linux_audit, dns, proxy, firewall]
+    require_telemetry: [linux_audit]
+    allow_mitre_prefixes: [T1053.003, T1105, T1059.004, T1548.003, T1021.004]
+    block: [windows registry, run key, mshta, lsass]
+  kubernetes_container:
+    allow_telemetry: [kubernetes_audit, cloud_audit, container_runtime, linux_audit, linux_process]
+    require_telemetry: [kubernetes_audit]
+    allow_mitre_prefixes: [T1609, T1611, T1552, T1078, T1098]
+    block: [windows registry, run key, mshta, lsass, oauth consent]
+  web_attack:
+    allow_telemetry: [web_server, waf, proxy, auth, file_events]
+    require_telemetry: [web_server]
+    allow_mitre_prefixes: [T1190, T1505.003, T1059, T1078, T1110]
+    block: [cloud iam, oauth consent, registry run key, lsass]
+  email_mailbox:
+    allow_telemetry: [email, email_audit, auth, proxy, dns]
+    require_telemetry: [email_audit]
+    allow_mitre_prefixes: [T1566, T1114, T1098, T1078]
+    block: [mshta, registry run key, lsass, cloud iam]
+  endpoint_lolbin:
+    allow_telemetry: [edr_process, edr_registry, dns, proxy, file_events]
+    require_telemetry: [edr_process]
+    allow_mitre_prefixes: [T1218, T1059, T1105, T1204.002, T1071, T1547, T1546]
+    block: [oauth consent, deploy key, repository secrets, cloud iam]
+  endpoint_credential:
+    allow_telemetry: [edr_process, file_events, auth]
+    require_telemetry: [edr_process]
+    allow_mitre_prefixes: [T1003, T1003.001, T1555, T1055]
+    block: [oauth consent, cloud iam, bucket, deploy key]
+  endpoint_lateral:
+    allow_telemetry: [edr_process, windows_service, wmi_events, auth, file_events, firewall]
+    require_telemetry: [edr_process, auth]
+    allow_mitre_prefixes: [T1021, T1047, T1569.002, T1078, T1105]
+    block: [oauth consent, cloud iam, bucket]
+  defense_evasion:
+    allow_telemetry: [edr_process, windows_service, driver_load, file_events, auth]
+    require_telemetry: [edr_process]
+    allow_mitre_prefixes: [T1562, T1068, T1070, T1490]
+    block: [oauth consent, cloud iam, bucket]

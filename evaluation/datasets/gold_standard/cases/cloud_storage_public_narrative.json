@@ -1,0 +1,39 @@
+{
+  "title": "Object Storage Container Made Public",
+  "severity": "High",
+  "content": "A cloud storage container ACL was updated so anonymous users can read objects. The change was made by a user who rarely administers storage, and object downloads increase after the change.",
+  "expected": {
+    "threat_summary": "A cloud storage container is made publicly readable and may expose data.",
+    "key_behaviors": [
+      "storage ACL allows anonymous or public read access",
+      "unusual actor changes storage policy",
+      "object access or download activity follows"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1530 - Data from Cloud Storage Object",
+      "T1078.004 - Cloud Accounts"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth",
+      "proxy"
+    ],
+    "hunt_checklist": [
+      "Review cloud audit logs for bucket/container/object ACL or policy changes.",
+      "Confirm whether public principals such as allUsers, anonymous, or Everyone were granted access.",
+      "Review object access/download activity after the exposure."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate storage policy change by actor, bucket/container/object, public principal, source IP, and follow-on downloads.",
+    "escalation_condition": "Escalate when sensitive storage is made public without approval.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

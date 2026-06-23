@@ -1,0 +1,43 @@
+{
+  "title": "GitHub OAuth App Adds Deploy Key",
+  "severity": "High",
+  "content": "A developer authorizes an unverified GitHub OAuth app. The app reads several private repositories and creates a deploy key on an internal service repository. The developer login came from a new IP.",
+  "expected": {
+    "threat_summary": "An unverified GitHub OAuth app accesses private repositories and creates a deploy key.",
+    "key_behaviors": [
+      "developer grants GitHub OAuth permissions",
+      "OAuth app accesses private repositories",
+      "deploy key is created on internal repository",
+      "login comes from unfamiliar IP"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1528 - Steal Application Access Token",
+      "T1098 - Account Manipulation",
+      "T1552 - Unsecured Credentials",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "github_audit",
+      "auth",
+      "proxy",
+      "cloud_audit"
+    ],
+    "hunt_checklist": [
+      "Review GitHub audit logs for OAuth authorization, repository access, deploy key creation, and scope grants.",
+      "Identify developer, OAuth app, publisher, scopes, repositories, source IP, and user agent.",
+      "Confirm whether the app and deploy key are approved."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate GitHub OAuth authorization, repo access, deploy key creation, login source IP, user agent, and repository sensitivity.",
+    "escalation_condition": "Escalate when an unapproved GitHub OAuth app accesses private repos or creates deploy keys.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

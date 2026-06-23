@@ -1,0 +1,5 @@
+index=auth earliest=-24h (mfa OR multifactor OR push OR challenge)
+| bin _time span=15m
+| stats count(eval(status="denied" OR result="failure")) as denied_count count(eval(status="approved" OR result="success")) as approved_count values(src_ip) as src_ips values(user_agent) as user_agents by _time user
+| where denied_count >= 3 AND approved_count >= 1
+| table _time user denied_count approved_count src_ips user_agents

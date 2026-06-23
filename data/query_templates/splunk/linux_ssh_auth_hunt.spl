@@ -1,0 +1,5 @@
+﻿(index=linux OR index=auth OR index=firewall) earliest=-24h (process=sshd OR app=ssh OR dest_port=22)
+| bin _time span=30m
+| stats count(eval(result="failure" OR action="failed")) as failed count(eval(result="success" OR action="success")) as success values(user) as users by _time host src_ip
+| where failed >= 10 OR (failed >= 5 AND success >= 1)
+| table _time host src_ip users failed success

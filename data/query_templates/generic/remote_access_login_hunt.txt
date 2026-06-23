@@ -1,0 +1,10 @@
+﻿# Generic Remote Access Login Hunt
+telemetry: auth, firewall, proxy
+fields: timestamp, user, src_ip, user_agent, device_id, application, action, status, dest_ip, dest_port, protocol
+logic:
+  from auth and firewall within last 24h
+  where application or protocol indicates RDP, VPN, SSH gateway, remote access portal, or external remote service
+  identify logins outside baseline hours, from new geography/IP/device, or followed by internal resource access
+  project timestamp, user, src_ip, user_agent, application, action, status, dest_ip, dest_port, protocol
+correlate:
+  tie remote access login to firewall session, destination resource, user baseline, and follow-on internal activity.

@@ -1,0 +1,4 @@
+﻿index=cloud_audit OR index=saas_audit OR index=email_audit earliest=-7d
+("OAuth" OR "Consent" OR "App authorization" OR "FileDownloaded" OR "FileExported" OR "ChannelRead" OR "DataExport")
+| search application=* OR app=* OR operation=*
+| table _time user actor src_ip user_agent application app operation target resource result

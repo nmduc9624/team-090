@@ -1,0 +1,40 @@
+{
+  "title": "AWS Admin Policy Attached To Service Account",
+  "severity": "Critical",
+  "content": "CloudTrail shows AttachRolePolicy adding AdministratorAccess to a workload role that normally has read-only permissions. The actor used a new source IP and the role accesses sensitive resources afterward.",
+  "expected": {
+    "threat_summary": "An administrator policy is attached to a cloud role, creating privilege expansion risk.",
+    "key_behaviors": [
+      "administrator policy is attached to a cloud role",
+      "actor or source IP is unusual",
+      "privileged cloud activity follows"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1098.003 - Additional Cloud Roles",
+      "T1078.004 - Cloud Accounts",
+      "T1098 - Account Manipulation"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth",
+      "proxy"
+    ],
+    "hunt_checklist": [
+      "Review cloud audit logs for AttachRolePolicy/SetIamPolicy/Add role assignment.",
+      "Identify actor, target role/service account, policy, source IP, user agent, and resource.",
+      "Review follow-on privileged API activity after the role change."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate IAM policy attachment by actor, target role, policy, source IP, user agent, resource, and follow-on cloud API activity.",
+    "escalation_condition": "Escalate when admin privilege is granted to an unusual identity or workload without approval.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

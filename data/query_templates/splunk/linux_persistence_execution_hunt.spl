@@ -1,0 +1,2 @@
+index=linux earliest=-24h ("crontab" OR "/etc/cron" OR "bash -i" OR "nc " OR "sudoers" OR "authorized_keys" OR "useradd")
+| table _time host user process command_line file_path action

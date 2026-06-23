@@ -1,0 +1,16 @@
+﻿// Generic Remote Registry service enable/start hunt.
+// Map table and field names to the SIEM schema before operational use.
+let window = 24h;
+let service_events = WindowsServiceEvents
+| where Timestamp > ago(window)
+| where ServiceName =~ "RemoteRegistry" or ServiceDisplayName has "Remote Registry"
+| where ActionType has_any ("Start", "Enable", "Change", "Config")
+| project Timestamp, DeviceName, AccountName, ServiceName, ServiceDisplayName, ActionType, InitiatingProcessFileName, InitiatingProcessCommandLine;
+let process_events = DeviceProcessEvents
+| where Timestamp > ago(window)
+| where FileName in~ ("sc.exe", "reg.exe", "wmic.exe", "psexec.exe")
+| where ProcessCommandLine has_any ("RemoteRegistry", "remote registry", "start", "config", "enable")
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName;
+service_events
+| union process_events
+| order by Timestamp desc

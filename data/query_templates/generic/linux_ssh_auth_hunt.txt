@@ -1,0 +1,10 @@
+﻿# Generic Linux SSH Authentication Hunt
+telemetry: linux_audit, auth, firewall
+fields: timestamp, host, user, uid, process, action, src_ip, result, dest_port
+logic:
+  from linux_audit, auth, or firewall within last 24h
+  where process is sshd or application/protocol is SSH
+  group failed attempts by src_ip, target user, and host over 15-30 minute windows
+  identify many failures, unusual source IPs, and any successful login after failures
+correlate:
+  review sudo, shell, file access, and outbound network activity after any successful SSH login.

@@ -1,0 +1,6 @@
+// Hunt suspicious mailbox forwarding or inbox rule changes.
+EmailAuditLogs
+| where TimeGenerated > ago(24h)
+| where Operation has_any ("New-InboxRule", "Set-InboxRule", "Set-Mailbox", "UpdateInboxRules")
+| where Parameters has_any ("ForwardTo", "RedirectTo", "DeleteMessage", "MarkAsRead", "external")
+| project TimeGenerated, UserId, Operation, ClientIP, Parameters, ResultStatus

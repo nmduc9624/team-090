@@ -1,0 +1,10 @@
+﻿# Generic SaaS OAuth File Export Hunt
+telemetry: cloud_audit, auth, email_audit, proxy
+fields: timestamp, user, actor, src_ip, user_agent, operation, application, target, resource, result
+logic:
+  from cloud_audit or SaaS audit telemetry within last 7d
+  where operation indicates OAuth consent, app authorization, file read, channel read, data export, or bulk download
+  filter for unverified apps, broad scopes, private channels, sensitive repositories, or unusual user/session context
+  project timestamp, user, actor, src_ip, user_agent, operation, application, target, resource, result
+correlate:
+  connect consent event, login context, file/channel access, and export/download activity by user/app/session.

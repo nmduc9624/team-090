@@ -1,0 +1,5 @@
+index=web earliest=-24h ("../" OR "%2e%2e" OR "union select" OR "xp_cmdshell" OR "cmd=" OR "powershell" OR ".aspx" OR ".jsp" OR "upload")
+| bin _time span=30m
+| stats count as attempts values(uri) as urls values(user_agent) as user_agents by _time src_ip
+| where attempts >= 5
+| table _time src_ip attempts urls user_agents

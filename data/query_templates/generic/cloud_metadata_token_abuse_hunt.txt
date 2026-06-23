@@ -1,0 +1,11 @@
+﻿# Generic Cloud Metadata Token Abuse Hunt
+telemetry: cloud_audit, proxy, edr_process
+fields: timestamp, host, user, process_name, command_line, url, dest_ip, actor, principal, operation, resource, user_agent
+logic:
+  from proxy or edr_process within last 24h
+  where url or dest_ip references metadata endpoints [169.254.169.254, metadata.google.internal, IMDS]
+  project timestamp, host, user, process_name, command_line, url, dest_ip
+  then from cloud_audit after metadata access
+  where actor/principal matches workload role or service account and operation is unusual for baseline
+correlate:
+  tie metadata access to instance/workload identity and follow-on cloud API calls.

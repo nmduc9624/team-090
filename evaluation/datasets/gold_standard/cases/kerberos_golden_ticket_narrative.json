@@ -1,0 +1,40 @@
+{
+  "title": "Suspicious Kerberos Ticket Lifetime Variant",
+  "severity": "Critical",
+  "content": "Windows security logs show Kerberos tickets with abnormal lifetime and RC4 encryption for privileged accounts. Requests originate from a workstation that is not a domain controller.",
+  "expected": {
+    "threat_summary": "Kerberos ticket properties suggest forged or abnormal ticket use against privileged identities.",
+    "key_behaviors": [
+      "Kerberos ticket lifetime or encryption is abnormal",
+      "source host is not expected for domain administration",
+      "privileged identities are targeted"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1558 - Steal or Forge Kerberos Tickets",
+      "T1558.001 - Golden Ticket",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "auth",
+      "windows_security",
+      "active_directory"
+    ],
+    "hunt_checklist": [
+      "Review Kerberos 4768/4769/4770 events for abnormal ticket lifetime, encryption, and krbtgt/service use.",
+      "Identify account, source host, domain controller, service principal, ticket options, and encryption type.",
+      "Confirm whether the source host is expected to request privileged Kerberos tickets."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate Kerberos events by account, source host, domain controller, service principal, ticket properties, and time window.",
+    "escalation_condition": "Escalate when abnormal Kerberos ticket behavior targets privileged identities from an unexpected host.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

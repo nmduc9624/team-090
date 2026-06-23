@@ -1,0 +1,7 @@
+// Hunt for cloud storage buckets or objects made public.
+CloudAuditLogs
+| where TimeGenerated > ago(24h)
+| where OperationName has_any ("PutBucketAcl", "SetIamPolicy", "SetContainerAcl", "UpdateBucket", "PutBucketPolicy")
+| where TargetResources has_any ("allUsers", "public", "anonymous", "Everyone")
+   or PolicyName has_any ("public", "anonymous", "allUsers")
+| project TimeGenerated, OperationName, InitiatedBy, Resource, TargetResources, PolicyName, SourceIpAddress, UserAgent

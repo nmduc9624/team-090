@@ -1,0 +1,3 @@
+index=kubernetes_audit earliest=-24h (verb=create OR verb=get OR verb=list OR verb=patch OR verb=update)
+| search objectRef.resource IN ("pods/exec","secrets","pods") OR requestObject="*privileged*" OR requestObject="*hostPath*"
+| table _time user src_ip verb objectRef.resource objectRef.name namespace requestURI responseStatus

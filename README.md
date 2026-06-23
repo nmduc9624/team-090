@@ -39,6 +39,7 @@ Root documents:
 Required demo/evaluation artifacts:
 
 - `docs/architecture/mvp_architecture.md`: architecture diagram, component view, and data flow.
+- `docs/architecture/rag_llm_analyzer.md`: RAG/LLM analyzer architecture, config, and API notes.
 - `evaluation/manual_evidence/manual_test_cases_2026-06-17.md`: 5 manual test cases with actual analyzer output.
 - `docs/repo/pr_merged_evidence.md`: status and checklist for the `>= 10 merged PRs` requirement.
 - `DEMO_FLOW.md`: 3-minute demo flow script. The actual video file is intentionally not included.
@@ -54,7 +55,7 @@ Use `npm.cmd` instead of `npm` in PowerShell if script execution policy blocks `
 ## Backend Setup
 
 ```powershell
-cd D:\AI20k\team-090\backend
+cd D:\AI20k\c2-app-090\C2-App-090\backend
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -63,7 +64,7 @@ python -m venv .venv
 Run backend:
 
 ```powershell
-cd D:\AI20k\team-090\backend
+cd D:\AI20k\c2-app-090\C2-App-090\backend
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
@@ -85,12 +86,17 @@ Backend environment variables use the `APP_` prefix and can be placed in `backen
 APP_APP_NAME=AI Threat Intel to Hunt Package Assistant
 APP_APP_VERSION=0.1.0
 APP_AI_PROVIDER=mock
+APP_ANALYZER_MODE=hybrid
 APP_OPENAI_API_KEY=
-APP_DATA_DIR=D:\AI20k\team-090\data
+APP_OPENAI_CHAT_MODEL=gpt-4.1-mini
+APP_OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+APP_VECTOR_STORE=local
+APP_RAG_TOP_K=8
+APP_DATA_DIR=D:\AI20k\c2-app-090\C2-App-090\data
 APP_CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
 ```
 
-For the MVP, `APP_AI_PROVIDER=mock` is expected. The app does not require an LLM API key yet.
+For the MVP, `APP_AI_PROVIDER=mock` and `APP_ANALYZER_MODE=hybrid` are expected. To enable RAG/LLM later, use `APP_ANALYZER_MODE=rag`, `APP_AI_PROVIDER=openai`, and fill `APP_OPENAI_API_KEY` locally in `backend/.env`. Do not commit real API keys.
 
 Health check:
 
@@ -103,7 +109,7 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -UseBasicParsing
 Open a second terminal:
 
 ```powershell
-cd D:\AI20k\team-090\frontend
+cd D:\AI20k\c2-app-090\C2-App-090\frontend
 npm.cmd install
 npm.cmd run dev
 ```
@@ -129,14 +135,14 @@ Use two VS Code terminals:
 Terminal 1, backend:
 
 ```powershell
-cd D:\AI20k\team-090\backend
+cd D:\AI20k\c2-app-090\C2-App-090\backend
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
 Terminal 2, frontend:
 
 ```powershell
-cd D:\AI20k\team-090\frontend
+cd D:\AI20k\c2-app-090\C2-App-090\frontend
 npm.cmd run dev
 ```
 
@@ -187,6 +193,42 @@ List generated hunt packages from current backend runtime:
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/hunt-packages" -UseBasicParsing
 ```
 
+## RAG/LLM Analyzer
+
+The backend now supports analyzer modes:
+
+```text
+APP_ANALYZER_MODE=hybrid
+APP_ANALYZER_MODE=rag
+APP_ANALYZER_MODE=llm
+```
+
+RAG uses local knowledge sources from:
+
+```text
+data/playbooks/
+data/mitre/
+data/query_templates/
+data/log_schemas/
+data/rag/reference/
+data/guardrails/
+evaluation/datasets/expected_hunt_packages/
+```
+
+Rebuild the local RAG index:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/api/rag/reindex" -UseBasicParsing
+```
+
+Check RAG status:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/rag/status" -UseBasicParsing
+```
+
+If `APP_OPENAI_API_KEY` is empty, RAG/LLM mode falls back to the hybrid analyzer and appends RAG citations. After you fill the key locally, the same endpoint `POST /api/threat-reports/analyze` can call OpenAI for JSON generation with schema validation.
+
 ## MVP User Flow
 
 1. Select one of the 100 alert cases in the left panel, or paste a custom report.
@@ -208,29 +250,36 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/hunt-packages" -UseBasicParsin
 Run backend unit tests:
 
 ```powershell
-cd D:\AI20k\team-090\backend
+cd D:\AI20k\c2-app-090\C2-App-090\backend
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
 Build frontend:
 
 ```powershell
-cd D:\AI20k\team-090\frontend
+cd D:\AI20k\c2-app-090\C2-App-090\frontend
 npm.cmd run build
 ```
 
 Run 100-case MVP evaluation:
 
 ```powershell
-cd D:\AI20k\team-090
+cd D:\AI20k\c2-app-090\C2-App-090
 .\backend\.venv\Scripts\python.exe .\evaluation\runners\run_mvp_evaluation.py
 ```
 
 Run holdout smoke test:
 
 ```powershell
-cd D:\AI20k\team-090
+cd D:\AI20k\c2-app-090\C2-App-090
 .\backend\.venv\Scripts\python.exe .\evaluation\runners\run_holdout_smoke.py
+```
+
+Run RAG comparison:
+
+```powershell
+cd D:\AI20k\c2-app-090\C2-App-090
+.\backend\.venv\Scripts\python.exe .\evaluation\runners\run_rag_comparison.py
 ```
 
 Evaluation outputs are written to:
@@ -259,6 +308,12 @@ Architecture diagram:
 
 ```text
 docs/architecture/mvp_architecture.md
+```
+
+RAG/LLM analyzer architecture:
+
+```text
+docs/architecture/rag_llm_analyzer.md
 ```
 
 Demo flow script:
@@ -293,4 +348,4 @@ Stop-Process -Id <PID> -Force
 
 ## Current Limitation
 
-The hybrid analyzer works well for the curated MVP dataset because it retrieves from known reference cases. For production-level quality, the next step is LLM mode with schema validation, more holdout data, analyst feedback, and persistent database storage.
+The hybrid analyzer works well for the curated MVP dataset because it retrieves from known reference cases. RAG/LLM mode has now been scaffolded with local indexing, retrieval, guardrails, schema validation, and OpenAI integration hooks. Production SOC usage still needs redaction, audit logging, persistent database storage, analyst feedback, and environment-specific SIEM schema validation.

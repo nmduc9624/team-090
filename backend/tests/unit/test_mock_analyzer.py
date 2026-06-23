@@ -36,7 +36,7 @@ def test_hybrid_analyzer_uses_reference_for_cloud_alert():
 
     assert "cloud_audit" in package.required_telemetry
     assert any("T1530" in item or "T1098" in item for item in package.mitre_mapping)
-    assert any("bucket" in item.lower() for item in package.key_behaviors)
+    assert any("cloud control plane" in item.lower() for item in package.key_behaviors)
 
 def test_saas_oauth_export_custom_report_avoids_endpoint_noise():
     report = """
@@ -124,3 +124,185 @@ A developer receives a message in a public issue asking them to install a GitHub
     assert "developer" in query_names
     assert "deploy key" in checklist_text
     assert "repository" in checklist_text
+
+
+def test_cloud_iam_admin_policy_report_avoids_endpoint_and_metadata_noise():
+    report = """
+# Alert Report: Cloud IAM Admin Policy Attached
+
+## Alert Metadata
+- alert_name: Cloud IAM Admin Policy Attached
+- alert_source: Cloud Audit
+- severity: Critical
+- category: Cloud Security
+
+## Summary
+An administrator policy is attached to a user, role or service account.
+
+## Observed Behaviors
+- cloud control plane setting changes unexpectedly
+- actor, key, or workload is unusual for the action
+- sensitive resource access or privilege expansion follows
+
+## Indicators
+- domains: none
+- ips: none
+- hashes: none
+- files: none
+- processes: none
+- registry_keys: none
+"""
+
+    package = analyze_report(ThreatReportRequest(title="Cloud IAM Admin Policy Attached", content=report))
+    behavior_text = "\n".join(package.key_behaviors).lower()
+    mitre_text = "\n".join(package.mitre_mapping).lower()
+    query_names = "\n".join(query.name.lower() for query in package.query_drafts)
+    checklist_text = "\n".join(package.hunt_checklist).lower()
+
+    assert "cloud_audit" in package.required_telemetry
+    assert "auth" in package.required_telemetry
+    assert "edr_process" not in package.required_telemetry
+    assert "edr_registry" not in package.required_telemetry
+    assert any("T1098" in item for item in package.mitre_mapping)
+    assert "cloud instance metadata" not in mitre_text
+    assert "windows service" not in behavior_text
+    assert "remote service execution" not in behavior_text
+    assert "alert_name" not in behavior_text
+    assert "alert_source" not in behavior_text
+    assert "process chain" not in checklist_text
+    assert "registry" not in checklist_text
+    assert "cloud iam" in query_names
+    assert "actor/principal" in package.correlation_logic.lower()
+
+
+def test_kerberos_ticket_report_avoids_cloud_iam_noise():
+    report = """
+# Alert Report: Suspicious Kerberos Ticket Lifetime
+
+## Alert Metadata
+- alert_name: Suspicious Kerberos Ticket Lifetime
+- alert_source: Windows Security
+- severity: Critical
+- category: Active Directory
+
+## Summary
+Kerberos tickets show abnormal lifetime or encryption characteristics.
+
+## Observed Behaviors
+- domain authentication or directory activity spikes
+- source host is not expected for directory administration
+- activity targets privileged identities or credential material
+
+## Indicators
+- domains: none
+- ips: none
+- hashes: none
+- files: none
+- processes: none
+- registry_keys: none
+"""
+
+    package = analyze_report(ThreatReportRequest(title="Suspicious Kerberos Ticket Lifetime", content=report))
+    text = "\n".join(
+        [
+            *package.required_telemetry,
+            *package.mitre_mapping,
+            *package.hunt_checklist,
+            *(query.name for query in package.query_drafts),
+            package.correlation_logic,
+        ]
+    ).lower()
+
+    assert "auth" in package.required_telemetry
+    assert "cloud_audit" not in package.required_telemetry
+    assert "proxy" not in package.required_telemetry
+    assert any("T1558" in item for item in package.mitre_mapping)
+    assert "cloud iam" not in text
+    assert "cloud instance metadata" not in text
+    assert "admin policy" not in text
+    assert "kerberos" in text
+
+
+def test_mfa_push_fatigue_report_uses_identity_context():
+    report = """
+# Alert Report: MFA Push Fatigue Successful Login
+
+## Alert Metadata
+- alert_name: MFA Push Fatigue Successful Login
+- alert_source: Identity Provider
+- severity: High
+- category: Identity
+
+## Summary
+A user receives repeated MFA push prompts within 15 minutes, denies several prompts, then approves one challenge. A successful login follows from an unfamiliar IP address and mailbox access occurs shortly afterward.
+
+## Observed Behaviors
+- repeated MFA push prompts sent to the same user within 15 minutes
+- several MFA challenges denied before one is approved
+- successful login from an unfamiliar IP address
+- mailbox and cloud storage access shortly after successful login
+
+## Indicators
+- ips: 203.0.113.77
+- processes: none
+- registry_keys: none
+"""
+
+    package = analyze_report(ThreatReportRequest(title="MFA Push Fatigue Successful Login", content=report))
+    text = "\n".join(
+        [
+            *package.required_telemetry,
+            *package.mitre_mapping,
+            *package.hunt_checklist,
+            *(query.name for query in package.query_drafts),
+        ]
+    ).lower()
+
+    assert "auth" in package.required_telemetry
+    assert "edr_process" not in package.required_telemetry
+    assert "edr_registry" not in package.required_telemetry
+    assert any("T1621" in item for item in package.mitre_mapping)
+    assert "mfa" in text
+    assert "registry" not in text
+    assert "mshta" not in text
+
+
+def test_cloud_storage_public_report_uses_storage_context_not_metadata():
+    report = """
+# Alert Report: Cloud Storage Bucket Made Public
+
+## Alert Metadata
+- alert_name: Cloud Storage Bucket Made Public
+- alert_source: Cloud Audit
+- severity: Critical
+- category: Cloud Security
+
+## Summary
+A cloud storage bucket ACL is changed to allow public access to objects.
+
+## Observed Behaviors
+- cloud control plane setting changes unexpectedly
+- storage bucket ACL grants public or anonymous access
+- sensitive resource access follows the change
+
+## Indicators
+- processes: none
+- registry_keys: none
+"""
+
+    package = analyze_report(ThreatReportRequest(title="Cloud Storage Bucket Made Public", content=report))
+    text = "\n".join(
+        [
+            *package.required_telemetry,
+            *package.mitre_mapping,
+            *package.hunt_checklist,
+            *(query.name for query in package.query_drafts),
+        ]
+    ).lower()
+
+    assert "cloud_audit" in package.required_telemetry
+    assert "edr_process" not in package.required_telemetry
+    assert any("T1530" in item for item in package.mitre_mapping)
+    assert "cloud storage" in text or "bucket" in text
+    assert "cloud instance metadata" not in text
+    assert "registry" not in text

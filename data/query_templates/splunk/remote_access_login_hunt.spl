@@ -1,0 +1,3 @@
+﻿(index=auth OR index=firewall OR index=vpn) earliest=-24h
+("rdp" OR "remote desktop" OR "vpn" OR "remote access" OR dest_port=3389 OR protocol=rdp)
+| table _time user src_ip user_agent app action status dest_ip dest_port protocol

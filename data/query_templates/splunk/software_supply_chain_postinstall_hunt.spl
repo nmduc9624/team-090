@@ -1,0 +1,4 @@
+﻿index=edr OR index=proxy earliest=-24h
+("npm install" OR "yarn install" OR "pnpm install" OR "postinstall" OR "node-gyp")
+| search command_line="*curl*" OR command_line="*wget*" OR command_line="*powershell*" OR command_line="*bash*" OR url=*
+| table _time host user parent_process process_name command_line url domain action

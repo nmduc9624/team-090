@@ -1,0 +1,2 @@
+﻿index=windows earliest=-24h EventCode=4662 ("DS-Replication-Get-Changes" OR "DS-Replication-Get-Changes-All" OR "1131f6aa" OR "1131f6ad")
+| table _time host user src_ip object properties

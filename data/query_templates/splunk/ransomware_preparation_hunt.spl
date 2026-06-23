@@ -1,0 +1,2 @@
+﻿index=edr earliest=-24h ((process_name="vssadmin.exe" command_line="*delete*") OR (process_name="wmic.exe" command_line="*shadowcopy*delete*") OR (process_name="wbadmin.exe" command_line="*delete*") OR (process_name="bcdedit.exe" command_line="*recoveryenabled no*"))
+| table _time host user process_name command_line parent_process

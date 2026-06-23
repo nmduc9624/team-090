@@ -1,0 +1,40 @@
+{
+  "title": "Shadow Copies Deleted Before Encryption",
+  "severity": "Critical",
+  "content": "Endpoint telemetry shows vssadmin deleting shadow copies and wbadmin deleting backup catalog shortly before many files are renamed with a ransom extension.",
+  "expected": {
+    "threat_summary": "Shadow copies and backup artifacts are deleted before file encryption activity.",
+    "key_behaviors": [
+      "shadow copies are deleted",
+      "backup catalog is deleted",
+      "file encryption or ransom extension follows"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1490 - Inhibit System Recovery",
+      "T1486 - Data Encrypted for Impact",
+      "T1562 - Impair Defenses"
+    ],
+    "required_telemetry": [
+      "edr_process",
+      "file_events",
+      "windows_service"
+    ],
+    "hunt_checklist": [
+      "Review process telemetry for vssadmin/wmic/wbadmin/bcdedit recovery disruption commands.",
+      "Check file events for mass rename/encryption after recovery inhibition.",
+      "Identify user, host, parent process, command line, and affected shares."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate recovery disruption commands, process chain, file encryption events, user, host, and time window.",
+    "escalation_condition": "Escalate immediately when shadow copy or backup deletion is followed by encryption activity.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

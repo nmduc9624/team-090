@@ -1,0 +1,10 @@
+﻿# Generic NPM Postinstall Supply Chain Hunt
+telemetry: edr_process, proxy, file_events
+fields: timestamp, host, user, process_name, command_line, parent_process, url, domain, file_name, file_path, action
+logic:
+  from edr_process, proxy, or file_events within last 24h
+  where command_line or process_name indicates npm/yarn/pnpm install or postinstall script execution
+  and child process launches shell, node, powershell, curl, wget, or downloads payloads
+  project timestamp, host, user, parent_process, process_name, command_line, url, domain, file_name, action
+correlate:
+  review package name, registry source, downloaded payload, created files, and outbound network activity from the install process.

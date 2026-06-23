@@ -200,3 +200,70 @@ Note:
 
 - The requested 3-minute video was intentionally excluded.
 - The local repository does not contain GitHub PR metadata, so the `>= 10 merged PRs` item is documented as a truthful GitHub-side requirement instead of being marked as completed locally.
+
+## RAG/LLM Analyzer Upgrade Check - 2026-06-20
+
+Completed:
+
+- Added RAG knowledge sources: `data/playbooks/`, `data/guardrails/`, and `data/rag/reference/rag_analyzer_contract.md`.
+- Added local indexing pipeline, chunking, metadata extraction, local hash embeddings, and local vector index.
+- Added retrieval logic with intent/context classification and metadata filtering.
+- Added OpenAI-compatible LLM generation hook using `APP_OPENAI_API_KEY`, with safe fallback when the key is not configured.
+- Added Pydantic schema validation and repair/fallback behavior.
+- Added pre-retrieval and post-output guardrails for SaaS OAuth, Developer Platform OAuth, Linux, identity, DNS, cloud, and endpoint contexts.
+- Added RAG API endpoints: `GET /api/rag/status` and `POST /api/rag/reindex`.
+- Added RAG comparison evaluation runner: `evaluation/runners/run_rag_comparison.py`.
+- Added architecture documentation: `docs/architecture/rag_llm_analyzer.md`.
+
+Verification:
+
+```text
+Backend tests: 11 passed
+Frontend build: passed
+100-case evaluation run: 20260620_210231
+100-case evaluation: 100/100 passed
+Holdout smoke run: holdout_20260620_210230
+Holdout smoke: 5/5 passed
+RAG comparison run: rag_compare_20260620_210231
+RAG comparison: 3/3 schema-valid, 3/3 with citations
+```
+
+Operational note:
+
+- `APP_ANALYZER_MODE=hybrid` keeps the original MVP behavior.
+- `APP_ANALYZER_MODE=rag` or `llm` enables retrieval and schema-validated generation.
+- If `APP_OPENAI_API_KEY` is empty, the RAG path returns a valid hybrid package enriched with RAG citations instead of failing.
+
+## Hybrid Retrieval Upgrade Check - 2026-06-22
+
+Completed:
+
+- Added BM25/keyword retrieval for exact SOC terms such as `AttachPolicy`, `SetIamPolicy`, `deploy key`, `repository secrets`, `mshta.exe`, and `cron`.
+- Added reranking that combines semantic score, BM25 score, metadata fit, source type priority, technical keyword hits, and blocked-context penalties.
+- Added dedicated `cloud_iam` guardrail for Cloud IAM admin policy attachment.
+- Added Cloud IAM KQL/SPL query templates.
+- Updated query selector to choose Cloud IAM templates by cloud provider/schema hints when available.
+- Filtered alert metadata lines such as `alert_name`, `alert_source`, `severity`, `category`, and `data_type` out of key behaviors.
+
+Verification:
+
+```text
+Backend tests: 13 passed
+Frontend build: passed
+100-case evaluation run: 20260622_102403
+100-case evaluation: 100/100 passed
+Holdout smoke run: holdout_20260622_102404
+Holdout smoke: 5/5 passed
+RAG comparison run: rag_compare_20260622_102403
+RAG comparison: 3/3 schema-valid, 3/3 with citations
+```
+
+Cloud IAM regression output now avoids:
+
+```text
+Windows service persistence
+Registry Run Key
+LSASS
+Cloud Instance Metadata API without metadata-service evidence
+endpoint host/process-chain correlation
+```

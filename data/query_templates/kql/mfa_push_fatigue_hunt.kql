@@ -1,0 +1,13 @@
+// Find repeated MFA prompts followed by an approved challenge and successful login.
+SigninLogs
+| where TimeGenerated > ago(24h)
+| where ResultDescription has_any ("MFA", "multifactor", "push") or AuthenticationRequirement has "multiFactorAuthentication"
+| summarize
+    denied_count=countif(ResultType != 0),
+    approved_count=countif(ResultType == 0),
+    ips=make_set(IPAddress),
+    apps=make_set(AppDisplayName),
+    user_agents=make_set(UserAgent)
+  by UserPrincipalName, bin(TimeGenerated, 15m)
+| where denied_count >= 3 and approved_count >= 1
+| project TimeGenerated, UserPrincipalName, denied_count, approved_count, ips, apps, user_agents

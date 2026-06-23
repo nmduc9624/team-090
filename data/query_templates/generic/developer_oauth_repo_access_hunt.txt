@@ -1,0 +1,10 @@
+﻿# Generic GitHub OAuth Repository Access Hunt
+telemetry: github_audit, cloud_audit, auth, proxy
+fields: timestamp, actor, user, src_ip, user_agent, operation, resource, target, application, result
+logic:
+  from github_audit or cloud_audit within last 7d
+  where operation indicates OAuth app authorization, repo access, private repo clone/read, secrets metadata access, or deploy key creation
+  filter for unapproved app names, broad repo scopes, or unusual source IP/user agent
+  project timestamp, actor, user, src_ip, user_agent, operation, resource, target, application, result
+correlate:
+  compare developer login context with OAuth app activity and identify repositories or secrets touched by the app.

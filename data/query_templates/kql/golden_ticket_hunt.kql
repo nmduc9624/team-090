@@ -1,0 +1,6 @@
+﻿// Generic Kerberos golden ticket / suspicious ticket lifetime hunt.
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID in (4768, 4769, 4770)
+| where TicketEncryptionType has_any ("0x17", "RC4") or TicketOptions != "" or ServiceName has "krbtgt"
+| project TimeGenerated, Computer, Account, ServiceName, TicketEncryptionType, TicketOptions, IpAddress

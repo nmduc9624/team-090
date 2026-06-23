@@ -1,0 +1,4 @@
+index=cloud_audit earliest=-24h
+("AttachPolicy" OR "AttachRolePolicy" OR "AttachUserPolicy" OR "SetIamPolicy" OR "Add role assignment" OR "CreateRoleAssignment")
+("Admin" OR "Administrator" OR "Owner" OR "Privileged")
+| table _time user actor src_ip user_agent operation resource policy role target

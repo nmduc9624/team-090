@@ -39,3 +39,220 @@ log_sources:
       - action
       - category
       - bytes_out
+  auth:
+    description: Authentication and identity provider telemetry.
+    fields:
+      - timestamp
+      - user
+      - src_ip
+      - user_agent
+      - device_id
+      - application
+      - action
+      - status
+      - failure_reason
+      - mfa_required
+      - mfa_result
+      - session_id
+  cloud_audit:
+    description: Cloud control plane, IAM, SaaS, and API audit telemetry.
+    fields:
+      - timestamp
+      - actor
+      - principal
+      - src_ip
+      - user_agent
+      - operation
+      - resource
+      - target
+      - policy
+      - role
+      - result
+      - request_id
+  email_audit:
+    description: Mailbox, mail rule, and email application audit telemetry.
+    fields:
+      - timestamp
+      - user
+      - src_ip
+      - operation
+      - mailbox
+      - rule_name
+      - parameters
+      - target
+      - result
+  email:
+    description: Email security gateway and message telemetry.
+    fields:
+      - timestamp
+      - sender
+      - recipient
+      - subject
+      - url
+      - attachment_name
+      - verdict
+      - action
+  windows_security:
+    description: Windows Security Event Log telemetry from endpoints and domain controllers.
+    fields:
+      - timestamp
+      - host
+      - event_id
+      - account
+      - target_account
+      - src_ip
+      - logon_type
+      - service_name
+      - ticket_encryption_type
+      - access_mask
+      - result
+  active_directory:
+    description: Directory service and domain controller audit telemetry.
+    fields:
+      - timestamp
+      - domain_controller
+      - account
+      - src_host
+      - operation
+      - object_dn
+      - object_class
+      - attributes
+      - result
+  kerberos:
+    description: Kerberos authentication and ticket telemetry.
+    fields:
+      - timestamp
+      - account
+      - src_ip
+      - src_host
+      - service_name
+      - ticket_type
+      - ticket_lifetime
+      - encryption_type
+      - failure_code
+      - domain_controller
+  linux_process:
+    description: Linux process execution telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - uid
+      - process_name
+      - command_line
+      - parent_process
+      - pid
+  linux_audit:
+    description: Linux auditd, auth, SSH, sudo, and file modification telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - uid
+      - process
+      - command_line
+      - file_path
+      - action
+      - src_ip
+      - result
+  kubernetes_audit:
+    description: Kubernetes API server audit telemetry.
+    fields:
+      - timestamp
+      - user
+      - source_ip
+      - verb
+      - namespace
+      - resource
+      - object_name
+      - request_uri
+      - request_object
+      - response_status
+  container_runtime:
+    description: Container runtime and workload execution telemetry.
+    fields:
+      - timestamp
+      - host
+      - namespace
+      - pod
+      - container
+      - image
+      - user
+      - command_line
+      - privileged
+  web_server:
+    description: Web server, reverse proxy, or WAF request telemetry.
+    fields:
+      - timestamp
+      - src_ip
+      - host
+      - method
+      - uri
+      - status_code
+      - user_agent
+      - bytes_out
+      - request_body_hash
+  waf:
+    description: Web application firewall detection telemetry.
+    fields:
+      - timestamp
+      - src_ip
+      - host
+      - uri
+      - rule_id
+      - rule_name
+      - severity
+      - action
+  windows_service:
+    description: Windows service creation, modification, and execution telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - service_name
+      - service_path
+      - action
+      - src_host
+  wmi_events:
+    description: WMI process execution and persistence telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - event_consumer
+      - filter_name
+      - command_line
+      - src_host
+  file_events:
+    description: File creation, modification, upload, download, and deletion telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - file_path
+      - file_name
+      - file_hash
+      - action
+      - process_name
+  driver_load:
+    description: Kernel driver load telemetry.
+    fields:
+      - timestamp
+      - host
+      - user
+      - driver_name
+      - driver_path
+      - signer
+      - hash
+      - result
+  firewall:
+    description: Network firewall connection and rule telemetry.
+    fields:
+      - timestamp
+      - src_ip
+      - src_host
+      - dest_ip
+      - dest_port
+      - protocol
+      - action
+      - rule_name

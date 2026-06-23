@@ -40,6 +40,9 @@ export type HuntPackage = {
   correlation_logic: string;
   escalation_condition: string;
   analyst_notes: string;
+  confidence_score: number;
+  confidence_reasons: string[];
+  severity_hint: string;
 };
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -73,3 +76,4 @@ export function analyzeThreatReport(title: string, content: string) {
     body: JSON.stringify({ title, content }),
   });
 }
+

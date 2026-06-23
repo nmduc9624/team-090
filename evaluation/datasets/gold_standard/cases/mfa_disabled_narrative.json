@@ -1,0 +1,38 @@
+{
+  "title": "MFA Method Removed Before Suspicious Login",
+  "severity": "Critical",
+  "content": "Identity provider audit logs show an actor removing the only MFA method from a user account. Within one hour the user signs in from a new device and accesses cloud storage.",
+  "expected": {
+    "threat_summary": "MFA is removed from a user account before suspicious follow-on access.",
+    "key_behaviors": [
+      "MFA or authentication method is removed",
+      "successful login follows from unfamiliar device",
+      "cloud storage access follows"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1098 - Account Manipulation",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "auth",
+      "cloud_audit"
+    ],
+    "hunt_checklist": [
+      "Review identity audit logs for MFA disable/authentication method removal/security info changes.",
+      "Identify actor, target user, source IP, device, user agent, and application.",
+      "Review successful logins and sensitive access after the MFA change."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate MFA method changes by actor and target user with follow-on login, device, source IP, session, and cloud access.",
+    "escalation_condition": "Escalate when MFA is removed without approved workflow or suspicious access follows.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

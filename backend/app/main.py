@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import data, hunt_packages, threat_reports
+from app.api.routes import data, hunt_packages, rag, threat_reports
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -19,6 +19,7 @@ app.add_middleware(
 app.include_router(threat_reports.router)
 app.include_router(hunt_packages.router)
 app.include_router(data.router)
+app.include_router(rag.router)
 
 
 @app.get("/api/health")
@@ -28,4 +29,5 @@ def health():
         "app": settings.app_name,
         "version": settings.app_version,
         "ai_provider": settings.ai_provider,
+        "analyzer_mode": settings.analyzer_mode,
     }

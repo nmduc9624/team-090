@@ -1,0 +1,8 @@
+﻿// Generic ransomware preparation hunt: shadow copy and backup disruption.
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where (FileName =~ "vssadmin.exe" and ProcessCommandLine has "delete")
+   or (FileName =~ "wmic.exe" and ProcessCommandLine has_all ("shadowcopy", "delete"))
+   or (FileName =~ "wbadmin.exe" and ProcessCommandLine has "delete")
+   or (FileName =~ "bcdedit.exe" and ProcessCommandLine has_any ("recoveryenabled no", "ignoreallfailures"))
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName

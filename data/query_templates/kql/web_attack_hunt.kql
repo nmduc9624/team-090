@@ -1,0 +1,8 @@
+// Hunt public web attack patterns such as RCE, SQL injection, traversal, upload, or webshell access.
+WebServerLogs
+| where TimeGenerated > ago(24h)
+| where Url has_any ("../", "%2e%2e", "union select", "xp_cmdshell", "cmd=", "powershell", ".aspx", ".jsp", "upload")
+   or StatusCode in (500, 502, 403)
+| summarize attempts=count(), urls=make_set(Url), user_agents=make_set(UserAgent) by SrcIpAddr, bin(TimeGenerated, 30m)
+| where attempts >= 5
+| project TimeGenerated, SrcIpAddr, attempts, urls, user_agents

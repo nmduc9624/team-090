@@ -110,6 +110,18 @@ function IocBlock({ huntPackage }: { huntPackage: HuntPackage }) {
   );
 }
 
+function ConfidenceBadge({ score, reasons }: { score?: number; reasons?: string[] }) {
+  const value = typeof score === "number" ? score : 0;
+  const level = value >= 0.75 ? "high" : value >= 0.55 ? "medium" : "low";
+  const label = value >= 0.75 ? "High confidence" : value >= 0.55 ? "Review recommended" : "Manual review";
+  return (
+    <div className={`confidence-badge ${level}`} title={(reasons ?? []).join("\n")}>
+      <span>{label}</span>
+      <strong>{Math.round(value * 100)}%</strong>
+    </div>
+  );
+}
+
 function HuntPackageView({ huntPackage }: { huntPackage: HuntPackage }) {
   return (
     <div className="result-stack">
@@ -118,7 +130,7 @@ function HuntPackageView({ huntPackage }: { huntPackage: HuntPackage }) {
           <p className="eyebrow">Hunt package</p>
           <h1>{huntPackage.report_title}</h1>
         </div>
-        <code>{huntPackage.package_id}</code>
+        <div className="result-actions"><ConfidenceBadge score={huntPackage.confidence_score} reasons={huntPackage.confidence_reasons} /><code>{huntPackage.package_id}</code></div>
       </div>
 
       <Section title="Summary" icon={<FileSearch size={18} />}>
@@ -360,3 +372,4 @@ export function App() {
     </main>
   );
 }
+

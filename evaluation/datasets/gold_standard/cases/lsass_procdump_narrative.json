@@ -1,0 +1,43 @@
+{
+  "title": "Suspicious LSASS Handle Access Variant",
+  "severity": "Critical",
+  "content": "A workstation alert says an unusual admin tool opened lsass.exe with high access rights. The command line includes procdump.exe -ma lsass.exe and a dump file appears before the same user authenticates to another server.",
+  "expected": {
+    "threat_summary": "A non-standard process accesses LSASS memory and may dump credentials before follow-on authentication.",
+    "key_behaviors": [
+      "non-standard process opens LSASS with high privileges",
+      "dump file is created from LSASS memory",
+      "follow-on authentication occurs after credential access"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [
+        "lsass.exe",
+        "procdump.exe"
+      ],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1003.001 - LSASS Memory",
+      "T1003 - OS Credential Dumping",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "edr_process",
+      "file_events",
+      "auth"
+    ],
+    "hunt_checklist": [
+      "Review EDR process telemetry for procdump/comsvcs/nanodump access to LSASS.",
+      "Check dump file creation on the same host and user.",
+      "Review follow-on authentication or lateral movement after LSASS access."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate LSASS process access, dump file creation, user, host, and follow-on authentication in the same time window.",
+    "escalation_condition": "Escalate when LSASS access is not approved security tooling or is followed by credential use.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

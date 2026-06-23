@@ -1,0 +1,6 @@
+﻿(index=proxy OR index=file_events OR index=cloud_audit) earliest=-24h
+(bytes_out>100000000 OR url="*drive*" OR url="*dropbox*" OR file_name="*.zip" OR file_name="*.7z")
+| bin _time span=1h
+| stats sum(bytes_out) as total_bytes values(domain) as domains values(url) as urls values(file_name) as files by _time user host src_ip
+| where total_bytes > 500000000 OR mvcount(files) > 20
+| table _time user host src_ip total_bytes domains urls files

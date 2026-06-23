@@ -1,0 +1,2 @@
+index=proxy OR index=edr earliest=-24h ("169.254.169.254" OR "metadata.google.internal")
+| table _time host user process_name command_line dest_ip url action

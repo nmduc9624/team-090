@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel
+﻿from pydantic import BaseModel, Field
 
 
 class QueryTemplate(BaseModel):
@@ -6,6 +6,7 @@ class QueryTemplate(BaseModel):
     platform: str
     path: str
     content: str
+    metadata: dict[str, object] = Field(default_factory=dict)
 
 
 class DataFile(BaseModel):
@@ -29,3 +30,4 @@ class SampleReport(BaseModel):
     severity: str
     category: str
     content: str
+

@@ -1,0 +1,6 @@
+// Hunt Linux cron, SSH, sudoers, and reverse shell persistence or execution.
+LinuxAuditLog
+| where TimeGenerated > ago(24h)
+| where CommandLine has_any ("crontab", "/etc/cron", "curl", "wget", "bash -i", "nc ", "sudoers", "useradd")
+   or FilePath has_any ("/etc/cron", "/etc/sudoers", "/root/.ssh/authorized_keys")
+| project TimeGenerated, HostName, User, ProcessName, CommandLine, FilePath, Action

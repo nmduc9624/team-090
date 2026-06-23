@@ -1,0 +1,8 @@
+﻿// Generic large upload / exfiltration hunt. Map fields before use.
+let window = 24h;
+ProxyLogs
+| where TimeGenerated > ago(window)
+| where BytesOut > 100000000 or Url has_any ("drive", "dropbox", "mega", "onedrive", "box")
+| summarize total_bytes=sum(BytesOut), urls=make_set(Url), domains=make_set(Domain) by User, Host, SrcIp, bin(TimeGenerated, 1h)
+| where total_bytes > 500000000
+| project TimeGenerated, User, Host, SrcIp, total_bytes, domains, urls

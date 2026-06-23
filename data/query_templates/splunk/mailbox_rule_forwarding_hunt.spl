@@ -1,0 +1,3 @@
+index=email_audit earliest=-24h ("New-InboxRule" OR "Set-InboxRule" OR "Set-Mailbox" OR "UpdateInboxRules")
+| search ("ForwardTo" OR "RedirectTo" OR "DeleteMessage" OR "MarkAsRead" OR "external")
+| table _time user src_ip operation parameters result

@@ -1,0 +1,7 @@
+﻿// Generic Linux UID 0 account creation hunt. Review table/field names against your Linux audit schema.
+LinuxAuditLog
+| where TimeGenerated > ago(24h)
+| where CommandLine has_any ("useradd", "usermod", "vipw", "passwd")
+   or FilePath in ("/etc/passwd", "/etc/shadow", "/etc/group", "/etc/sudoers")
+   or CommandLine has "uid=0"
+| project TimeGenerated, HostName, User, UID, GID, ProcessName, CommandLine, FilePath, Action, SourceIP, Result

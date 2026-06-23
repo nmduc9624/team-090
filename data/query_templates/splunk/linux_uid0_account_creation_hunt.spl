@@ -1,0 +1,2 @@
+﻿index=linux earliest=-24h ("useradd" OR "usermod" OR "vipw" OR "uid=0" OR "/etc/passwd" OR "/etc/shadow" OR "/etc/sudoers")
+| table _time host user uid gid process command_line file_path action src_ip result

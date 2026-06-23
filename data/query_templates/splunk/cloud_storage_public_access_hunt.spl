@@ -1,0 +1,3 @@
+index=cloud_audit earliest=-24h ("PutBucketAcl" OR "SetIamPolicy" OR "SetContainerAcl" OR "PutBucketPolicy")
+| search ("allUsers" OR "public" OR "anonymous" OR "Everyone")
+| table _time user actor src_ip operation resource policy user_agent

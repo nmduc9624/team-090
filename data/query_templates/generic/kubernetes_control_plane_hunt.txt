@@ -1,0 +1,11 @@
+﻿# Generic Kubernetes Control Plane Hunt
+telemetry: kubernetes_audit, container_runtime, cloud_audit
+fields: timestamp, user, source_ip, verb, namespace, resource, object_name, request_uri, request_object, response_status
+logic:
+  from kubernetes_audit within last 24h
+  where verb in [create, update, patch, exec, get, list]
+  and resource in [pods, secrets, serviceaccounts, rolebindings, clusterrolebindings]
+  highlight kubectl exec, privileged pod creation, secret reads, or role binding changes
+  project timestamp, user, source_ip, verb, namespace, resource, object_name, request_uri, response_status
+correlate:
+  review container_runtime for follow-on command execution and cloud_audit for related identity changes.

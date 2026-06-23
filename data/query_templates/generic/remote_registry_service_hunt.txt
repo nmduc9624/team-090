@@ -1,0 +1,10 @@
+﻿# Generic Remote Registry Service Hunt
+telemetry: windows_service, edr_process, windows_security, auth
+fields: timestamp, host, user, service_name, service_path, action, src_host, process_name, command_line, event_id
+logic:
+  from windows_service or windows_security within last 24h
+  where service_name equals RemoteRegistry or action indicates service enabled, service started, service config changed
+  include related sc.exe, services.exe, reg.exe, wmic.exe, psexec, or remote administration process events
+  project timestamp, host, user, src_host, service_name, action, process_name, command_line, event_id
+correlate:
+  check source account/host, remote logon events, admin share activity, and follow-on registry/process changes on the target host.

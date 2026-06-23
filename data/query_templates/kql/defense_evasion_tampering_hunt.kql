@@ -1,0 +1,6 @@
+// Hunt security tool tampering, driver abuse, security log clearing, and shadow copy deletion.
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where ProcessCommandLine has_any ("Set-MpPreference", "DisableRealtimeMonitoring", "wevtutil cl", "vssadmin delete shadows", "bcdedit", "sc stop")
+   or FileName in~ ("wevtutil.exe", "vssadmin.exe", "bcdedit.exe", "powershell.exe")
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName

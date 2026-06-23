@@ -1,0 +1,10 @@
+﻿# Generic Data Exfiltration Large Upload Hunt
+telemetry: proxy, file_events, cloud_audit, dns, firewall
+fields: timestamp, user, host, src_ip, domain, url, bytes_out, action, file_name, file_path, resource, result
+logic:
+  from proxy, file_events, cloud_audit, dns, or firewall within last 24h
+  where bytes_out is high, many files are uploaded/downloaded, archive files are staged, or cloud drive/personal storage destinations appear
+  group by user, host, destination domain, source IP, and 1h window
+  project timestamp, user, host, src_ip, domain, url, bytes_out, action, file_name, resource, result
+correlate:
+  review file staging/archive activity before upload and destination reputation or business approval.

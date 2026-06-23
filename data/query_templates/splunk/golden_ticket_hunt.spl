@@ -1,0 +1,2 @@
+﻿index=windows earliest=-24h EventCode IN (4768,4769,4770) (ServiceName="krbtgt" OR TicketEncryptionType="0x17" OR ticket_lifetime=*)
+| table _time host user service ticket_encryption ticket_options src_ip

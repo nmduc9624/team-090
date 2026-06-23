@@ -1,0 +1,10 @@
+﻿# Generic Kerberos Ticket Anomaly Hunt
+telemetry: windows_security, kerberos, active_directory, auth
+fields: timestamp, domain_controller, account, src_host, src_ip, service_name, ticket_type, ticket_lifetime, encryption_type, failure_code, event_id
+logic:
+  from kerberos or windows_security within last 24h
+  where event_id in [4768, 4769, 4771] or ticket_type/ticket_lifetime/encryption_type is abnormal
+  identify unusual source hosts requesting tickets for privileged accounts or many SPNs
+  project timestamp, account, src_host, src_ip, domain_controller, service_name, ticket_lifetime, encryption_type, event_id
+correlate:
+  compare source host/account with expected directory administration and privileged account baselines.

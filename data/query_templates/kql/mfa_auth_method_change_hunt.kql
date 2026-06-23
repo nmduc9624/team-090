@@ -1,0 +1,11 @@
+// Hunt for MFA disable, authentication method removal, or strong authentication setting changes.
+AuditLogs
+| where TimeGenerated > ago(24h)
+| where OperationName has_any ("Disable MFA", "Update user", "Delete user authentication method", "Update authentication method", "StrongAuthentication", "Security info")
+   or TargetResources has_any ("StrongAuthenticationMethods", "authentication method", "MFA", "security info")
+| project TimeGenerated, InitiatedBy, OperationName, TargetResources, Result, CorrelationId
+;
+SigninLogs
+| where TimeGenerated > ago(24h)
+| where ResultType == 0
+| project TimeGenerated, UserPrincipalName, IPAddress, UserAgent, AppDisplayName, ConditionalAccessStatus

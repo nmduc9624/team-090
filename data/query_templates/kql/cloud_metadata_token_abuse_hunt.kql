@@ -1,0 +1,6 @@
+// Hunt for cloud instance metadata credential or token access.
+let metadata_hosts = dynamic(["169.254.169.254", "metadata.google.internal"]);
+DeviceNetworkEvents
+| where Timestamp > ago(24h)
+| where RemoteIP in (metadata_hosts) or RemoteUrl has_any ("metadata.google.internal", "169.254.169.254")
+| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, ProcessCommandLine, RemoteIP, RemoteUrl

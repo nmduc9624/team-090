@@ -1,0 +1,10 @@
+﻿# Generic Linux Persistence Execution Hunt
+telemetry: linux_audit, linux_process, dns, proxy
+fields: timestamp, host, user, uid, process, process_name, command_line, file_path, action, src_ip, result
+logic:
+  from linux_audit or linux_process within last 24h
+  where file_path touches cron, systemd, shell profile, sudoers, ssh authorized_keys, or /etc persistence locations
+  or command_line contains curl/wget/bash reverse shell patterns
+  project timestamp, host, user, uid, process_name, command_line, file_path, action, src_ip, result
+correlate:
+  tie persistence file changes to shell/network activity and recent SSH/auth events on the same host.

@@ -1,0 +1,4 @@
+﻿index=windows OR index=edr earliest=-24h
+(service_name="RemoteRegistry" OR service_display_name="Remote Registry" OR command_line="*RemoteRegistry*" OR command_line="*remote registry*")
+(action IN ("start","started","enable","enabled","change","config") OR process_name IN ("sc.exe","reg.exe","wmic.exe","psexec.exe"))
+| table _time host user src_host service_name action process_name command_line

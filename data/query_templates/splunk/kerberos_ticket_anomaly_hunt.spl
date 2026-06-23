@@ -1,0 +1,7 @@
+index=windows sourcetype=WinEventLog:Security earliest=-24h (EventCode=4768 OR EventCode=4769 OR EventCode=4771 OR EventCode=4662)
+| eval target_account=coalesce(TargetUserName, Account_Name, user)
+| search Ticket_Encryption_Type IN ("0x17","0x18") OR Service_Name="*krbtgt*" OR Access_Mask="*0x100*" OR Object_Server="DS"
+| bin _time span=30m
+| stats count as event_count values(Service_Name) as services values(host) as hosts by _time target_account src_ip EventCode
+| where event_count > 10 OR mvfind(services, "krbtgt") >= 0
+| table _time target_account src_ip EventCode event_count services hosts

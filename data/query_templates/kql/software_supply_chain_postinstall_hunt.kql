@@ -1,0 +1,6 @@
+﻿// Generic npm postinstall supply-chain hunt. Map tables and fields before running.
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where ProcessCommandLine has_any ("npm install", "yarn install", "pnpm install", "postinstall", "node-gyp")
+| where ProcessCommandLine has_any ("curl", "wget", "powershell", "bash", "cmd", "http")
+| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine

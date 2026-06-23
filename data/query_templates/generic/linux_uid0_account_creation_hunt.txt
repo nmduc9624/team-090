@@ -1,0 +1,9 @@
+﻿telemetry: linux_audit, linux_process, file_events, auth
+fields: timestamp, host, user, uid, gid, process_name, command_line, file_path, action, src_ip, result
+logic:
+  from linux_audit, linux_process, file_events, or auth within last 24h
+  where command_line or action indicates useradd/usermod/vipw/passwd changes
+  or file_path is /etc/passwd, /etc/shadow, /etc/group, or /etc/sudoers
+  identify accounts with UID 0 or root-equivalent privilege
+correlate:
+  review SSH, sudo, shell, and privileged command activity after the account creation.

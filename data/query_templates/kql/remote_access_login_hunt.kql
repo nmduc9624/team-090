@@ -1,0 +1,13 @@
+﻿// Generic remote access login hunt. Map table/field names before operational use.
+let window = 24h;
+let remote_auth = SigninLogs
+| where TimeGenerated > ago(window)
+| where AppDisplayName has_any ("VPN", "RDP", "Remote Desktop", "Remote Access", "SSH")
+   or ClientAppUsed has_any ("VPN", "RDP", "Remote Desktop", "SSH")
+| project TimeGenerated, UserPrincipalName, IPAddress, UserAgent, AppDisplayName, ResultType, Location;
+let network = CommonSecurityLog
+| where TimeGenerated > ago(window)
+| where DestinationPort in (3389, 22, 443) or ApplicationProtocol has_any ("rdp", "ssh", "vpn")
+| project TimeGenerated, SourceIP, DestinationIP, DestinationPort, ApplicationProtocol, DeviceAction;
+remote_auth
+| join kind=leftouter network on $left.IPAddress == $right.SourceIP

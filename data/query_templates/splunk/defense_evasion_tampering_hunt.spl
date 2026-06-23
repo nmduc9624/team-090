@@ -1,0 +1,2 @@
+index=edr sourcetype=process earliest=-24h ("Set-MpPreference" OR "DisableRealtimeMonitoring" OR "wevtutil cl" OR "vssadmin delete shadows" OR "bcdedit" OR "sc stop")
+| table _time host user parent_process process_name command_line

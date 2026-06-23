@@ -41,12 +41,16 @@ REQUIRED_FIELDS = [
 ]
 
 IOC_FIELDS = ["domains", "ips", "hashes", "files", "processes", "registry_keys"]
+SEVERITY_THRESHOLDS = {"Medium": 0.80, "Medium/High": 0.85, "High": 0.88, "Critical": 0.92}
 
 
 @dataclass
 class CaseResult:
     slug: str
     status: str
+    severity: str
+    quality_score: float
+    severity_threshold: float
     title: str
     error: str
     completeness_score: float
@@ -120,6 +124,13 @@ def model_to_dict(package: HuntPackage) -> dict[str, Any]:
     return package.dict()
 
 
+def severity_from_markdown(content: str) -> str:
+    match = re.search(r"^-\s*severity:\s*(.+)$", content, re.IGNORECASE | re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    return "Medium/High"
+
+
 def title_from_markdown(slug: str, content: str) -> str:
     for line in content.splitlines():
         stripped = line.strip()
@@ -128,10 +139,92 @@ def title_from_markdown(slug: str, content: str) -> str:
     return slug.replace("_", " ").title()
 
 
+CRITICAL_MISMATCH_RULES: list[tuple[str, tuple[str, ...], tuple[str, ...]]] = [
+    ("lsass_wrong_domain", ("lsass",), ("oauth", "cloud metadata", "bucket", "browser credential", "archive collected")),
+    ("kerberos_wrong_domain", ("kerberos", "ticket"), ("cloud iam", "bucket", "mshta", "registry run", "oauth")),
+    ("cloud_iam_wrong_domain", ("admin policy", "iam"), ("cloud storage public", "bucket made public", "lsass", "mshta", "registry run")),
+    ("cloud_storage_wrong_domain", ("bucket", "storage", "public"), ("admin policy attachment", "lsass", "mshta", "registry run")),
+    ("linux_uid0_wrong_domain", ("uid 0",), ("windows registry", "mshta", "cloud iam", "oauth")),
+    ("mfa_disabled_wrong_flow", ("mfa", "disabled"), ("push fatigue", "push prompts", "multiple denied")),
+    ("github_oauth_wrong_domain", ("github", "oauth"), ("mshta", "registry run", "cloud metadata", "kerberos")),
+]
+
+
+def critical_mismatch_reasons(source_text: str, generated: dict[str, Any]) -> list[str]:
+    source = normalize(source_text)
+    output = normalize(json.dumps(generated, ensure_ascii=False))
+    reasons: list[str] = []
+    for name, required, forbidden in CRITICAL_MISMATCH_RULES:
+        if all(token in source for token in required) and any(token in output for token in forbidden):
+            reasons.append(f"critical_mismatch:{name}")
+    return reasons
+
+
+def evaluate_generated_against_expected(slug: str, title: str, severity: str, source_text: str, expected: dict[str, Any], generated: dict[str, Any]) -> CaseResult:
+    severity_threshold = SEVERITY_THRESHOLDS.get(severity, 0.85)
+    completeness_score = sum(non_empty(generated.get(field)) for field in REQUIRED_FIELDS) / len(REQUIRED_FIELDS)
+    expected_telemetry = {normalize(item) for item in expected.get("required_telemetry", [])}
+    actual_telemetry = {normalize(item) for item in generated.get("required_telemetry", [])}
+    expected_mitre = technique_ids(expected.get("mitre_mapping", []))
+    actual_mitre = technique_ids(generated.get("mitre_mapping", []))
+    expected_ioc = flatten_ioc(expected.get("ioc", {}))
+    actual_ioc = flatten_ioc(generated.get("ioc", {}))
+
+    telemetry_recall = recall(actual_telemetry, expected_telemetry)
+    mitre_recall = recall(actual_mitre, expected_mitre)
+    ioc_recall = recall(actual_ioc, expected_ioc)
+    behavior_overlap = behavior_score(generated.get("key_behaviors", []), expected.get("key_behaviors", []))
+    quality_score = mean([telemetry_recall, mitre_recall, ioc_recall, behavior_overlap])
+
+    weak_reasons = []
+    if completeness_score < 1.0:
+        weak_reasons.append("missing_required_fields")
+    if telemetry_recall < 0.5:
+        weak_reasons.append("low_telemetry_alignment")
+    if mitre_recall < 0.5:
+        weak_reasons.append("low_mitre_alignment")
+    if expected_ioc and ioc_recall < 0.5:
+        weak_reasons.append("low_ioc_alignment")
+    if behavior_overlap < 0.5:
+        weak_reasons.append("low_behavior_overlap")
+    if not generated.get("query_drafts"):
+        weak_reasons.append("no_query_drafts")
+    if quality_score < severity_threshold:
+        weak_reasons.append("below_severity_threshold")
+    weak_reasons.extend(critical_mismatch_reasons(source_text, generated))
+
+    ioc_count = sum(len(generated.get("ioc", {}).get(field, [])) for field in IOC_FIELDS)
+    blocking = [reason for reason in weak_reasons if reason != "no_query_drafts"]
+    status = "passed" if not blocking else "weak"
+    return CaseResult(
+        slug=slug,
+        status=status,
+        severity=severity,
+        quality_score=round(quality_score, 4),
+        severity_threshold=severity_threshold,
+        title=title,
+        error="",
+        completeness_score=round(completeness_score, 4),
+        expected_telemetry_recall=round(telemetry_recall, 4),
+        expected_mitre_recall=round(mitre_recall, 4),
+        expected_ioc_recall=round(ioc_recall, 4),
+        behavior_overlap=round(behavior_overlap, 4),
+        query_count=len(generated.get("query_drafts", [])),
+        behavior_count=len(generated.get("key_behaviors", [])),
+        ioc_count=ioc_count,
+        mitre_count=len(generated.get("mitre_mapping", [])),
+        telemetry_count=len(generated.get("required_telemetry", [])),
+        checklist_count=len(generated.get("hunt_checklist", [])),
+        weak_reasons=weak_reasons,
+    )
+
+
 def evaluate_case(report_path: Path, expected_path: Path, output_dir: Path) -> tuple[CaseResult, dict[str, Any] | None]:
     slug = report_path.stem
     content = report_path.read_text(encoding="utf-8")
     title = title_from_markdown(slug, content)
+    severity = severity_from_markdown(content)
+    severity_threshold = SEVERITY_THRESHOLDS.get(severity, 0.85)
     expected = json.loads(expected_path.read_text(encoding="utf-8"))
 
     try:
@@ -143,6 +236,9 @@ def evaluate_case(report_path: Path, expected_path: Path, output_dir: Path) -> t
             CaseResult(
                 slug=slug,
                 status="failed",
+                severity=severity,
+                quality_score=0.0,
+                severity_threshold=severity_threshold,
                 title=title,
                 error=str(exc),
                 completeness_score=0.0,
@@ -166,57 +262,51 @@ def evaluate_case(report_path: Path, expected_path: Path, output_dir: Path) -> t
         encoding="utf-8",
     )
 
-    completeness_score = sum(non_empty(generated.get(field)) for field in REQUIRED_FIELDS) / len(REQUIRED_FIELDS)
-    expected_telemetry = {normalize(item) for item in expected.get("required_telemetry", [])}
-    actual_telemetry = {normalize(item) for item in generated.get("required_telemetry", [])}
-    expected_mitre = technique_ids(expected.get("mitre_mapping", []))
-    actual_mitre = technique_ids(generated.get("mitre_mapping", []))
-    expected_ioc = flatten_ioc(expected.get("ioc", {}))
-    actual_ioc = flatten_ioc(generated.get("ioc", {}))
+    result = evaluate_generated_against_expected(slug, title, severity, title + "\n" + content, expected, generated)
+    return (result, generated)
 
-    telemetry_recall = recall(actual_telemetry, expected_telemetry)
-    mitre_recall = recall(actual_mitre, expected_mitre)
-    ioc_recall = recall(actual_ioc, expected_ioc)
-    behavior_overlap = behavior_score(generated.get("key_behaviors", []), expected.get("key_behaviors", []))
 
-    weak_reasons = []
-    if completeness_score < 1.0:
-        weak_reasons.append("missing_required_fields")
-    if telemetry_recall < 0.5:
-        weak_reasons.append("low_telemetry_alignment")
-    if mitre_recall < 0.5:
-        weak_reasons.append("low_mitre_alignment")
-    if expected_ioc and ioc_recall < 0.5:
-        weak_reasons.append("low_ioc_alignment")
-    if behavior_overlap < 0.5:
-        weak_reasons.append("low_behavior_overlap")
-    if not generated.get("query_drafts"):
-        weak_reasons.append("no_query_drafts")
+def evaluate_external_cases(generated_dir: Path) -> list[CaseResult]:
+    external_dir = PROJECT_ROOT / "evaluation" / "datasets" / "gold_standard" / "cases"
+    if not external_dir.exists():
+        return []
+    results: list[CaseResult] = []
+    for case_path in sorted(external_dir.glob("*.json")):
+        case = json.loads(case_path.read_text(encoding="utf-8"))
+        slug = case_path.stem
+        title = case.get("title", slug.replace("_", " ").title())
+        severity = case.get("severity", "Medium/High")
+        content = case.get("content", "")
+        expected = case.get("expected", {})
+        try:
+            package = analyze_report(ThreatReportRequest(title=title, content=content, source_name="external_gold_standard"))
+            generated = model_to_dict(package)
+            HuntPackage.model_validate(generated)
+            generated_dir.joinpath(f"external_{slug}.json").write_text(
+                json.dumps(generated, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            results.append(evaluate_generated_against_expected(slug, title, severity, title + "\n" + content, expected, generated))
+        except Exception as exc:
+            threshold = SEVERITY_THRESHOLDS.get(severity, 0.85)
+            results.append(CaseResult(slug, "failed", severity, 0.0, threshold, title, str(exc), 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0, ["analyzer_error"]))
+    return results
 
-    ioc_count = sum(len(generated.get("ioc", {}).get(field, [])) for field in IOC_FIELDS)
-    status = "passed" if not [reason for reason in weak_reasons if reason != "no_query_drafts"] else "weak"
 
-    return (
-        CaseResult(
-            slug=slug,
-            status=status,
-            title=title,
-            error="",
-            completeness_score=round(completeness_score, 4),
-            expected_telemetry_recall=round(telemetry_recall, 4),
-            expected_mitre_recall=round(mitre_recall, 4),
-            expected_ioc_recall=round(ioc_recall, 4),
-            behavior_overlap=round(behavior_overlap, 4),
-            query_count=len(generated.get("query_drafts", [])),
-            behavior_count=len(generated.get("key_behaviors", [])),
-            ioc_count=ioc_count,
-            mitre_count=len(generated.get("mitre_mapping", [])),
-            telemetry_count=len(generated.get("required_telemetry", [])),
-            checklist_count=len(generated.get("hunt_checklist", [])),
-            weak_reasons=weak_reasons,
-        ),
-        generated,
-    )
+def severity_breakdown(results: list[CaseResult]) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for sev in ["Critical", "High", "Medium/High", "Medium"]:
+        subset = [r for r in results if r.severity == sev]
+        if subset:
+            out[sev] = {
+                "count": len(subset),
+                "passed": sum(1 for r in subset if r.status == "passed"),
+                "avg_quality": round(mean(r.quality_score for r in subset), 4),
+                "min_quality": round(min(r.quality_score for r in subset), 4),
+                "threshold": SEVERITY_THRESHOLDS.get(sev, 0.85),
+                "weak_cases": [r.slug for r in subset if r.status != "passed"],
+            }
+    return out
 
 
 def write_csv(results: list[CaseResult], path: Path) -> None:
@@ -315,6 +405,10 @@ def run(limit: int | None = None) -> Path:
     passed = [result for result in results if result.status == "passed"]
     weak = [result for result in results if result.status == "weak"]
     failed = [result for result in results if result.status == "failed"]
+    severity_passed = [result for result in results if result.quality_score >= result.severity_threshold and result.status != "failed"]
+    severity_failed = [result for result in results if result.quality_score < result.severity_threshold and result.status != "failed"]
+
+    external_results = evaluate_external_cases(generated_dir)
 
     summary = {
         "run_id": run_id,
@@ -324,6 +418,8 @@ def run(limit: int | None = None) -> Path:
         "failed_cases": len(failed),
         "passed_cases": len(passed),
         "weak_cases": len(weak),
+        "severity_gate_passed_cases": len(severity_passed),
+        "severity_gate_failed_cases": len(severity_failed),
         "average_completeness_score": mean(result.completeness_score for result in results),
         "average_telemetry_recall": mean(result.expected_telemetry_recall for result in results),
         "average_mitre_recall": mean(result.expected_mitre_recall for result in results),
@@ -331,6 +427,14 @@ def run(limit: int | None = None) -> Path:
         "average_behavior_overlap": mean(result.behavior_overlap for result in results),
         "average_query_count": mean(result.query_count for result in results),
         "quality_gate": "passed" if len(failed) == 0 and len(passed) == len(results) else "needs_improvement",
+        "severity_breakdown": severity_breakdown(results),
+        "external_gold_cases": len(external_results),
+        "external_passed_cases": sum(1 for result in external_results if result.status == "passed"),
+        "external_weak_cases": sum(1 for result in external_results if result.status == "weak"),
+        "external_failed_cases": sum(1 for result in external_results if result.status == "failed"),
+        "external_average_quality": mean(result.quality_score for result in external_results) if external_results else 0.0,
+        "external_quality_gate": "passed" if external_results and all(result.status == "passed" for result in external_results) else "needs_improvement",
+        "external_severity_breakdown": severity_breakdown(external_results),
     }
 
     run_dir.joinpath("summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -339,7 +443,13 @@ def run(limit: int | None = None) -> Path:
         encoding="utf-8",
     )
     write_csv(results, run_dir / "case_results.csv")
-    write_markdown(summary, results, run_dir / "report.md")
+    if external_results:
+        write_csv(external_results, run_dir / "external_case_results.csv")
+        run_dir.joinpath("external_case_results.json").write_text(
+            json.dumps([asdict(result) for result in external_results], indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    write_markdown(summary, results + external_results, run_dir / "report.md")
     return run_dir
 
 
@@ -354,3 +464,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+

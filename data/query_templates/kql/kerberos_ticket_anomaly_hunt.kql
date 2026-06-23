@@ -1,0 +1,12 @@
+// Hunt Kerberos ticket anomalies, Kerberoasting, AS-REP roasting, and DCSync-style directory activity.
+// Review table and field names against the real Windows Security or identity schema before running.
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID in (4768, 4769, 4771, 4662)
+| extend TargetAccount = coalesce(TargetUserName, Account)
+| where TicketEncryptionType in ("0x17", "0x18")
+   or ServiceName has_any ("krbtgt", "MSSQL", "HTTP")
+   or AccessMask has_any ("0x100", "Replicating Directory Changes")
+| summarize EventCount=count(), Services=make_set(ServiceName), Hosts=make_set(Computer) by TargetAccount, IpAddress, EventID, bin(TimeGenerated, 30m)
+| where EventCount > 10 or tostring(Services) has "krbtgt"
+| project TimeGenerated, TargetAccount, IpAddress, EventID, EventCount, Services, Hosts

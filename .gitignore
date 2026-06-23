@@ -29,6 +29,8 @@ data/embeddings/*
 !data/embeddings/.gitkeep
 evaluation/runs/*
 !evaluation/runs/.gitkeep
+data/rag/index/*
+!data/rag/index/.gitkeep
 
 # OS/editor
 .DS_Store

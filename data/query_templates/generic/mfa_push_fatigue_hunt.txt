@@ -1,0 +1,10 @@
+﻿# Generic MFA Push Fatigue Hunt
+telemetry: auth, cloud_audit, email_audit, proxy
+fields: timestamp, user, src_ip, user_agent, device_id, application, action, status, mfa_result, session_id
+logic:
+  from auth within last 1h
+  where action indicates MFA prompt, push challenge, denied challenge, approved challenge, or successful login
+  group by user, src_ip, user_agent, 15m window
+  alert when multiple denied prompts are followed by approval or successful login
+correlate:
+  review mailbox, SaaS, and cloud access from the same session or source IP after the successful MFA approval.

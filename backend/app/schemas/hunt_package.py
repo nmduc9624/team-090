@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+﻿from pydantic import BaseModel, Field
 
 
 class IOC(BaseModel):
@@ -30,9 +30,14 @@ class HuntPackage(BaseModel):
     correlation_logic: str
     escalation_condition: str
     analyst_notes: str
+    confidence_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    confidence_reasons: list[str] = Field(default_factory=list)
+    severity_hint: str = ""
 
 
 class HuntPackageListItem(BaseModel):
     package_id: str
     report_title: str
     threat_summary: str
+
+

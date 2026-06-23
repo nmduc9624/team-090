@@ -1,0 +1,41 @@
+{
+  "title": "Linux UID 0 User Created Variant",
+  "severity": "Critical",
+  "content": "Linux audit logs show useradd creating svc-backup with UID 0 on a production server. /etc/passwd changed, then the new account starts an interactive bash session over SSH.",
+  "expected": {
+    "threat_summary": "A Linux root-equivalent account is created and used interactively.",
+    "key_behaviors": [
+      "new Linux user is created with UID 0",
+      "/etc/passwd is modified",
+      "interactive SSH/bash activity follows"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1136.001 - Local Account",
+      "T1548 - Abuse Elevation Control Mechanism",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "linux_audit",
+      "linux_process",
+      "file_events",
+      "auth"
+    ],
+    "hunt_checklist": [
+      "Review Linux audit logs for useradd/usermod/vipw and UID 0 account creation.",
+      "Inspect /etc/passwd, /etc/shadow, /etc/group, and sudoers changes.",
+      "Review SSH, sudo, and shell activity by the new account."
+    ],
+    "query_drafts": [],
+    "correlation_logic": "Correlate account file changes, process command line, UID/GID, source IP, SSH login, and shell activity on the same host.",
+    "escalation_condition": "Escalate when a UID 0 account is created outside approved administration.",
+    "analyst_notes": "Hand-authored external gold standard case for accuracy/generalization evaluation."
+  }
+}

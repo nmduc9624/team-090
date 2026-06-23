@@ -1,0 +1,2 @@
+index=auth earliest=-24h ("Disable MFA" OR "authentication method" OR "StrongAuthentication" OR "security info" OR "MFA disabled")
+| table _time actor user src_ip user_agent action operation result target

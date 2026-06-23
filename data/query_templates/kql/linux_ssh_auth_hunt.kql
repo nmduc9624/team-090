@@ -1,0 +1,7 @@
+﻿// Generic Linux SSH authentication hunt. Map table/field names before use.
+LinuxAuditLogs
+| where TimeGenerated > ago(24h)
+| where ProcessName =~ "sshd" or Action has_any ("ssh", "login")
+| summarize failed=countif(Result =~ "failure"), success=countif(Result =~ "success"), users=make_set(User) by SrcIp, Host, bin(TimeGenerated, 30m)
+| where failed >= 10 or (failed >= 5 and success >= 1)
+| project TimeGenerated, Host, SrcIp, users, failed, success

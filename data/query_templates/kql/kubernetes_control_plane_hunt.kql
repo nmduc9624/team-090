@@ -1,0 +1,7 @@
+// Hunt risky Kubernetes exec, secret reads, and privileged container activity.
+KubeAudit
+| where TimeGenerated > ago(24h)
+| where Verb in ("create", "get", "list", "patch", "update")
+| where ObjectRefResource in ("pods/exec", "secrets", "pods")
+   or RequestObject has_any ("privileged", "hostPath", "hostPID", "hostNetwork")
+| project TimeGenerated, User, SourceIPs, Verb, ObjectRefResource, ObjectRefName, Namespace, RequestURI, ResponseStatus
