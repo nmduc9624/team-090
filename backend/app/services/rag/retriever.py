@@ -14,7 +14,7 @@ def retrieve_context(title: str, content: str) -> RagContext:
 
     intent = classify_intent(title, content)
     query = f"{title}\n{content}"
-    candidate_count = max(settings.rag_top_k * 4, settings.rag_top_k)
+    candidate_count = max(settings.rag_top_k * settings.rag_candidate_multiplier, settings.rag_top_k)
     semantic_candidates = search_index(query, top_k=candidate_count)
     keyword_candidates = keyword_search(query, top_k=candidate_count)
     candidates = rerank_documents(query, intent, semantic_candidates, keyword_candidates, top_k=candidate_count)

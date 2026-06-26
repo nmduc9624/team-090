@@ -94,6 +94,10 @@ APP_VECTOR_STORE=local
 APP_RAG_TOP_K=8
 APP_DATA_DIR=D:\AI20k\c2-app-090\C2-App-090\data
 APP_CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
+APP_FIRESTORE_ENABLED=true
+APP_FIREBASE_PROJECT_ID=soc-hunt-assistant
+APP_FIREBASE_REQUIRE_AUTH=false
+GOOGLE_APPLICATION_CREDENTIALS=D:\AI20k\c2-app-090\C2-App-090\firebase-keys\soc-hunt-assistant.json
 ```
 
 For the MVP, `APP_AI_PROVIDER=mock` and `APP_ANALYZER_MODE=hybrid` are expected. To enable RAG/LLM later, use `APP_ANALYZER_MODE=rag`, `APP_AI_PROVIDER=openai`, and fill `APP_OPENAI_API_KEY` locally in `backend/.env`. Do not commit real API keys.
@@ -103,6 +107,23 @@ Health check:
 ```powershell
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -UseBasicParsing
 ```
+
+Auth status check:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/auth/me" -UseBasicParsing
+```
+
+`APP_FIREBASE_REQUIRE_AUTH=false` keeps the backend compatible with local development while Firebase Auth is being rolled out. Set it to `true` after `users/{uid}` documents and role checks are ready.
+
+Seed demo Firestore structure:
+
+```powershell
+cd D:\AI20k\c2-app-090\C2-App-090
+.\backend\.venv\Scripts\python.exe .\scripts\seed_firestore.py
+```
+
+The seed creates demo `users`, `cases`, nested hunt workflow collections, warning/help documents, audit logs, and `discord_tickets`. Demo document IDs are prefixed with `demo_`.
 
 ## Frontend Setup
 
@@ -126,7 +147,17 @@ Optional frontend environment variable:
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-If no frontend env file is provided, the frontend defaults to `http://127.0.0.1:8000`.
+Firebase Email/Password login is configured through `frontend/.env`:
+
+```text
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_FIREBASE_API_KEY=<firebase-web-api-key>
+VITE_FIREBASE_AUTH_DOMAIN=soc-hunt-assistant.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=soc-hunt-assistant
+VITE_FIREBASE_APP_ID=<firebase-web-app-id>
+```
+
+If no API URL is provided, the frontend defaults to `http://127.0.0.1:8000`. Authenticated frontend requests attach `Authorization: Bearer <firebase_id_token>`. The current backend still accepts unauthenticated requests until the backend Firebase Admin verification phase is completed.
 
 ## Run The Full App
 
@@ -145,6 +176,45 @@ Terminal 2, frontend:
 cd D:\AI20k\c2-app-090\C2-App-090\frontend
 npm.cmd run dev
 ```
+
+Optional Terminal 3, Discord bot for warning tickets:
+
+```powershell
+cd D:\AI20k\c2-app-090\C2-App-090
+.\backend\.venv\Scripts\python.exe .\bot\main.py
+```
+
+The Discord bot listens locally on:
+
+```text
+http://127.0.0.1:8001
+```
+
+Required Discord variables can be placed in `backend/.env`:
+
+```text
+DISCORD_BOT_TOKEN=<your-discord-bot-token>
+DISCORD_ESCALATION_CHANNEL_ID=<optional-fallback-channel-id>
+DISCORD_SUPERVISOR_USER_ID=<optional-supervisor-user-id>
+DISCORD_SUPERVISOR_ROLE_ID=<optional-supervisor-role-id>
+```
+
+Current warning/ticket behavior:
+
+- A Discord ticket channel is created automatically after a hunt package is generated.
+- Ticket name format is `[username]-[hunt-package-title]`, where `username` is taken from the signed-in email before `@`.
+- The ticket receives only `initial_warning` immediately after analyze.
+- `priority_action_warning` is sent only when the analyst confirms Priority Actions in the hunt report.
+- `step_warning` is sent when the analyst starts a specific investigation step.
+- `ask-for-help` is sent when the analyst asks a supervisor from a specific step or from the help action.
+- `escalation_warning` is sent when the analyst confirms evidence and chooses to escalate.
+- `final_summary` is sent when the analyst clicks `End case`.
+- Discord tickets are retained for audit/review and are not deleted by the web app.
+- Ask-for-help sends current step, completed steps, evidence available, current warning, severity, and confidence.
+- Ticket mapping is stored in Firestore at `discord_tickets/{case_id}` when the ticket is created.
+- Replies posted inside a Discord ticket are stored as web notifications for the original case owner at `users/{uid}/notifications`.
+
+Mention note: `DISCORD_SUPERVISOR_ROLE_ID` must be the raw Discord role ID and the bot must have permission to mention that role. If Discord shows plain white text, check that the value is not a role name and that the bot can mention roles in the target channel.
 
 Then open:
 

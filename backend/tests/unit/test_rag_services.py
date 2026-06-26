@@ -5,6 +5,7 @@ from app.schemas.threat_report import ThreatReportRequest
 from app.services.rag.guardrails import classify_intent
 from app.services.rag.indexer import rebuild_rag_index
 from app.services.rag.models import RagContext
+from app.services.rag.cache import get_cached_hunt_package, store_cached_hunt_package
 from app.services.rag.retriever import retrieve_context
 from app.services.rag.validator import validate_or_repair
 from app.services.query_generation.template_loader import find_templates_for_text
@@ -21,6 +22,22 @@ def test_rag_index_rebuilds_from_project_data(monkeypatch):
     assert result["document_count"] > 100
     assert Path(str(result["path"])).exists()
     assert result["embedding_provider"]
+
+
+def test_rag_cache_round_trips_hunt_package(monkeypatch, tmp_path):
+    settings = get_settings()
+    request = ThreatReportRequest(title="Cached report", content="excel.exe launches mshta.exe")
+    package = analyze_hybrid(request)
+    monkeypatch.setattr(settings, "rag_cache_enabled", True)
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+
+    assert get_cached_hunt_package(request) is None
+    store_cached_hunt_package(request, package)
+    cached = get_cached_hunt_package(request)
+
+    assert cached is not None
+    assert cached.package_id == package.package_id
+    assert "RAG cache" in cached.analyst_notes
 
 
 def test_retriever_classifies_developer_platform_context():

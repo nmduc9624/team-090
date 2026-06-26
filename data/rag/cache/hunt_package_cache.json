@@ -1,0 +1,1204 @@
+{
+  "25fce1f5be5a44d2c09e0b7ca526452f70f137967650b62d4ef34348e123df79": {
+    "package_id": "13856c16b6a1",
+    "report_title": "Suspicious GitHub OAuth App",
+    "threat_summary": "# Suspicious GitHub OAuth App An unverified GitHub OAuth app accesses private repositories, reads repository secrets metadata, creates a deploy key, and the developer logs in from a new IP.",
+    "key_behaviors": [
+      "OAuth consent or cloud token abuse",
+      "Developer platform OAuth app accesses repositories or secrets",
+      "Deploy key or webhook created in repository"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1528 - Steal Application Access Token",
+      "T1098 - Account Manipulation",
+      "T1552 - Unsecured Credentials",
+      "T1530 - Data from Cloud Storage Object",
+      "T1078 - Valid Accounts"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth",
+      "github_audit",
+      "proxy"
+    ],
+    "hunt_checklist": [
+      "Review GitHub audit logs for OAuth app authorization, granted scopes, private repository access, deploy key creation, and secrets metadata access.",
+      "Identify the developer account, OAuth app, publisher, source IP, user agent, repositories, organizations, and permission scopes.",
+      "Confirm whether the app and deploy key are approved by engineering or platform security.",
+      "Review follow-on repository clone/read, workflow, token, and secret metadata activity after app authorization.",
+      "Escalate if the app is unapproved, has broad repo/secrets permissions, or creates deploy keys on sensitive repositories.",
+      "Review GitHub/GitLab OAuth app authorization and granted repository scopes.",
+      "Check which private repositories were accessed, cloned, or enumerated by the app.",
+      "Review deploy key creation events and confirm whether each key is approved.",
+      "Check repository secrets metadata access and any related workflow or token activity.",
+      "Correlate developer login source IP, device, and session context with the app activity."
+    ],
+    "query_drafts": [
+      {
+        "name": "Developer Oauth Repo Access Hunt",
+        "platform": "GENERIC",
+        "query": "﻿# Generic GitHub OAuth Repository Access Hunt\ntelemetry: github_audit, cloud_audit, auth, proxy\nfields: timestamp, actor, user, src_ip, user_agent, operation, resource, target, application, result\nlogic:\n  from github_audit or cloud_audit within last 7d\n  where operation indicates OAuth app authorization, repo access, private repo clone/read, secrets metadata access, or deploy key creation\n  filter for unapproved app names, broad repo scopes, or unusual source IP/user agent\n  project timestamp, actor, user, src_ip, user_agent, operation, resource, target, application, result\ncorrelate:\n  compare developer login context with OAuth app activity and identify repositories or secrets touched by the app.\n",
+        "purpose": "Draft query based on template query_templates\\generic\\developer_oauth_repo_access_hunt.txt. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Developer Oauth Repo Access Hunt",
+        "platform": "KQL",
+        "query": "// Hunt for developer-platform OAuth app access to repositories, secrets metadata, or deploy keys.\nCloudAppEvents\n| where Timestamp > ago(7d)\n| where Application has_any (\"GitHub\", \"GitLab\", \"Bitbucket\") or ObjectName has_any (\"repository\", \"repo\", \"deploy key\", \"secret\")\n| where ActionType has_any (\"OAuthAppAuthorized\", \"RepositoryAccessed\", \"RepoCloned\", \"SecretRead\", \"DeployKeyCreated\", \"ApplicationConsent\")\n| project Timestamp, AccountDisplayName, Application, ActionType, ObjectName, IPAddress\n;\nAuditLogs\n| where TimeGenerated > ago(7d)\n| where OperationName has_any (\"OAuth\", \"Consent\", \"Deploy key\", \"Repository\", \"Secret\")\n| project TimeGenerated, InitiatedBy, OperationName, TargetResources, Result",
+        "purpose": "Draft query based on template query_templates\\kql\\developer_oauth_repo_access_hunt.kql. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Developer Oauth Repo Access Hunt",
+        "platform": "SPL",
+        "query": "# Draft SPL for developer-platform OAuth abuse\n# Review sourcetype and field names before running in production.\nindex=* (oauth OR deploy_key OR repository_secrets)\n| table _time user action repository src_ip user_agent\n",
+        "purpose": "Draft query based on template query_templates\\splunk\\developer_oauth_repo_access_hunt.spl. Review field names before running.",
+        "telemetry": []
+      }
+    ],
+    "correlation_logic": "Correlate GitHub OAuth authorization, repository access, deploy key creation, secrets metadata access, developer login source IP, user agent, and repository sensitivity within the same session or 24-hour window.",
+    "escalation_condition": "Escalate when an unapproved GitHub OAuth app accesses private repositories, reads secrets metadata, or creates deploy keys.",
+    "analyst_notes": "MVP hybrid analyzer output. Hybrid analyzer matched reference `risky_oauth_app_granted` with score 0.35. Review generated queries and assumptions before operational use.\n\nRAG mode: LLM generation unavailable; returned hybrid baseline with RAG citations.\nIntent: developer_platform\nRetrieved sources:\n- Soc Hunt Playbooks (chunk 2) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=1.081)\n- Developer Oauth Repo Access Hunt (query_template, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\query_templates\\generic\\developer_oauth_repo_access_hunt.txt, score=1.901)\n- Developer Oauth Repo Access Hunt (query_template, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\query_templates\\kql\\developer_oauth_repo_access_hunt.kql, score=1.837)\n- Developer Oauth Repo Access Hunt (query_template, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\query_templates\\splunk\\developer_oauth_repo_access_hunt.spl, score=1.313)",
+    "confidence_score": 0.76,
+    "confidence_reasons": [
+      "Partial reference match (0.35).",
+      "Unstructured input; manual review recommended."
+    ],
+    "severity_hint": "Medium/High",
+    "risk_explanation": "Suspicious GitHub OAuth App needs review because OAuth consent or cloud token abuse may indicate suspicious activity. The analyst should validate the evidence before treating the case as confirmed malicious.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review the report title, severity, affected entities, and observed behaviors.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search cloud_audit, auth for the core behaviors and indicators listed in the hunt package.",
+        "expected_evidence": [
+          "OAuth consent or cloud token abuse",
+          "Developer platform OAuth app accesses repositories or secrets",
+          "Deploy key or webhook created in repository"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate GitHub OAuth authorization, repository access, deploy key creation, secrets metadata access, developer login source IP, user agent, and repository sensitivity within the same session or 24-hour window.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate when an unapproved GitHub OAuth app accesses private repositories, reads secrets metadata, or creates deploy keys.",
+        "expected_evidence": [
+          "business justification",
+          "false positive check",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping first keeps the investigation focused and helps decide who needs to respond.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "The alert should not be escalated until the primary evidence is confirmed.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "This reduces false positives before warning or escalation.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "OAuth consent or cloud token abuse",
+        "evidence_needed": [
+          "cloud_audit",
+          "auth"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates the behavior against telemetry and indicators.",
+        "evidence_needed": [
+          "Review GitHub audit logs for OAuth app authorization, granted scopes, private repository access, deploy key creation, and secrets metadata access.",
+          "Identify the developer account, OAuth app, publisher, source IP, user agent, repositories, organizations, and permission scopes."
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, ask for help, or close as benign.",
+        "evidence_needed": [
+          "Escalate when an unapproved GitHub OAuth app accesses private repositories, reads secrets metadata, or creates deploy keys."
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Check whether the activity matches an approved change, maintenance window, security tool, or administrator workflow.",
+      "Confirm whether the affected user, host, workload, or resource is expected to perform this action.",
+      "Review nearby events before escalation to avoid treating isolated benign activity as confirmed malicious."
+    ],
+    "recommended_response": [
+      "Preserve relevant telemetry, query results, and analyst notes as evidence.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious activity."
+    ],
+    "warning_preview": {
+      "should_send": false,
+      "recipient_role": "soc_channel",
+      "message": "[Review] Suspicious GitHub OAuth App\nSummary: # Suspicious GitHub OAuth App An unverified GitHub OAuth app accesses private repositories, reads repository secrets metadata, creates a deploy key, and the developer logs in from a new IP.\nPriority: validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  },
+  "5c973bbdab03161d40658c0486217b700ccb4108e01eac0f0bf7d54a1557bc44": {
+    "package_id": "d86385b9a401",
+    "report_title": "Cloud IAM Admin Policy Attached",
+    "threat_summary": "An administrator policy is attached to a user, role or service account.",
+    "key_behaviors": [
+      "cloud control plane setting changes unexpectedly",
+      "actor, key, or workload is unusual for the action",
+      "sensitive resource access or privilege expansion follows",
+      "Cloud control plane or IAM change requires review",
+      "IAM admin policy or privileged role assigned"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1098.003 - Additional Cloud Roles",
+      "T1078.004 - Cloud Accounts",
+      "T1098 - Account Manipulation"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth",
+      "proxy"
+    ],
+    "hunt_checklist": [
+      "Review cloud audit logs for IAM admin policy attachment or privileged role assignment events.",
+      "Identify the actor/principal, target user, role or service account, resource, source IP, and user agent.",
+      "Check whether the actor normally performs IAM changes and whether the change was approved.",
+      "Review follow-on activity after the privilege expansion, especially access to sensitive resources.",
+      "Check authentication context for the actor, including new location, new device, MFA, and session anomalies.",
+      "Escalate if admin privileges were granted to an unusual identity, workload, service account, or production asset.",
+      "Search relevant telemetry for: cloud control plane setting changes unexpectedly.",
+      "Search relevant telemetry for: actor, key, or workload is unusual for the action.",
+      "Search relevant telemetry for: sensitive resource access or privilege expansion follows.",
+      "Confirm whether the behavior is expected business activity before escalation."
+    ],
+    "query_drafts": [
+      {
+        "name": "Cloud Iam Admin Policy Attachment Hunt",
+        "platform": "GENERIC",
+        "query": "﻿# Generic Cloud IAM Admin Policy Attachment Hunt\ntelemetry: cloud_audit, auth\nfields: timestamp, actor, principal, src_ip, user_agent, operation, resource, target, policy, role, result\nlogic:\n  from cloud_audit within last 24h\n  where operation contains any of [AttachPolicy, AttachRolePolicy, AttachUserPolicy, SetIamPolicy, AddRoleAssignment, CreateRoleAssignment]\n  and policy or role or target contains any of [Admin, Administrator, Owner, Privileged]\n  project timestamp, actor, principal, src_ip, user_agent, operation, resource, target, policy, role, result\ncorrelate:\n  join with auth by actor/principal within 24h to identify new device, unfamiliar IP, MFA anomalies, or unusual session.\n",
+        "purpose": "Draft query based on template query_templates\\generic\\cloud_iam_admin_policy_attachment_hunt.txt. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Cloud Iam Admin Policy Attachment Hunt",
+        "platform": "KQL",
+        "query": "// Generic cloud IAM admin policy or privileged role assignment hunt.\n// Review table and field names against the real cloud audit schema before running.\nCloudAuditLogs\n| where TimeGenerated > ago(24h)\n| where OperationName has_any (\"AttachPolicy\", \"AttachRolePolicy\", \"AttachUserPolicy\", \"SetIamPolicy\", \"Add role assignment\", \"CreateRoleAssignment\")\n| where PolicyName has_any (\"Admin\", \"Administrator\", \"Owner\", \"Privileged\")\n   or RoleName has_any (\"Admin\", \"Administrator\", \"Owner\", \"Privileged\")\n   or TargetResources has_any (\"Admin\", \"Administrator\", \"Owner\", \"Privileged\")\n| project TimeGenerated, OperationName, InitiatedBy, Actor=InitiatedBy, TargetResources, Resource, PolicyName, RoleName, SourceIpAddress, UserAgent\n",
+        "purpose": "Draft query based on template query_templates\\kql\\cloud_iam_admin_policy_attachment_hunt.kql. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Cloud Iam Admin Policy Attachment Hunt",
+        "platform": "SPL",
+        "query": "index=cloud_audit earliest=-24h\n(\"AttachPolicy\" OR \"AttachRolePolicy\" OR \"AttachUserPolicy\" OR \"SetIamPolicy\" OR \"Add role assignment\" OR \"CreateRoleAssignment\")\n(\"Admin\" OR \"Administrator\" OR \"Owner\" OR \"Privileged\")\n| table _time user actor src_ip user_agent operation resource policy role target\n",
+        "purpose": "Draft query based on template query_templates\\splunk\\cloud_iam_admin_policy_attachment_hunt.spl. Review field names before running.",
+        "telemetry": []
+      }
+    ],
+    "correlation_logic": "Correlate cloud audit events by actor/principal, target user/role/service account, resource, source IP, user agent, and time window. Confirm whether the IAM admin policy attachment was approved change activity.",
+    "escalation_condition": "Escalate when cloud iam admin policy attached is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+    "analyst_notes": "MVP hybrid analyzer output. Hybrid analyzer matched reference `cloud_iam_policy_admin_attach` with score 1.00. Review generated queries and assumptions before operational use.\n\nRAG mode: LLM generation unavailable; returned hybrid baseline with RAG citations.\nIntent: cloud_iam\nRetrieved sources:\n- Cloud Iam Admin Policy Attachment Hunt (query_template, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\query_templates\\kql\\cloud_iam_admin_policy_attachment_hunt.kql, score=1.260)\n- Cloud Iam Policy Admin Attach (case, D:\\AI20k\\c2-app-090\\C2-App-090\\evaluation\\datasets\\expected_hunt_packages\\cloud_iam_policy_admin_attach.json, score=1.591)\n- Alert Report: Cloud IAM Admin Policy Attached (sample_report, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\threat_reports\\samples\\cloud_iam_policy_admin_attach.md, score=1.390)\n- Alert Report: Cloud Access Key Used From New Geography (sample_report, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\threat_reports\\samples\\cloud_access_key_used_from_new_geo.md, score=0.986)",
+    "confidence_score": 1.0,
+    "confidence_reasons": [
+      "High reference match (1.00)."
+    ],
+    "severity_hint": "Critical",
+    "risk_explanation": "Cloud IAM Admin Policy Attached needs review because cloud control plane setting changes unexpectedly may indicate suspicious activity. The analyst should validate the evidence before treating the case as confirmed malicious.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review the report title, severity, affected entities, and observed behaviors.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search cloud_audit, auth, proxy for the core behaviors and indicators listed in the hunt package.",
+        "expected_evidence": [
+          "cloud control plane setting changes unexpectedly",
+          "actor, key, or workload is unusual for the action",
+          "sensitive resource access or privilege expansion follows"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate cloud audit events by actor/principal, target user/role/service account, resource, source IP, user agent, and time window. Confirm whether the IAM admin policy attachment was approved change activity.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate when cloud iam admin policy attached is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+        "expected_evidence": [
+          "business justification",
+          "false positive check",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping first keeps the investigation focused and helps decide who needs to respond.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "The alert should not be escalated until the primary evidence is confirmed.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "This reduces false positives before warning or escalation.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "cloud control plane setting changes unexpectedly",
+        "evidence_needed": [
+          "cloud_audit",
+          "auth"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates the behavior against telemetry and indicators.",
+        "evidence_needed": [
+          "Review cloud audit logs for IAM admin policy attachment or privileged role assignment events.",
+          "Identify the actor/principal, target user, role or service account, resource, source IP, and user agent."
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, ask for help, or close as benign.",
+        "evidence_needed": [
+          "Escalate when cloud iam admin policy attached is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity."
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Check whether the activity matches an approved change, maintenance window, security tool, or administrator workflow.",
+      "Confirm whether the affected user, host, workload, or resource is expected to perform this action.",
+      "Review nearby events before escalation to avoid treating isolated benign activity as confirmed malicious."
+    ],
+    "recommended_response": [
+      "Preserve relevant telemetry, query results, and analyst notes as evidence.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious activity."
+    ],
+    "warning_preview": {
+      "should_send": false,
+      "recipient_role": "soc_channel",
+      "message": "[Review] Cloud IAM Admin Policy Attached\nSummary: An administrator policy is attached to a user, role or service account.\nPriority: validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  },
+  "abf90d1bde26947b65f363d8a5676e72d47776aab2b454437e95a7ac262afa7e": {
+    "package_id": "0e52306bf77a",
+    "report_title": "Cloud Metadata Credential Access",
+    "threat_summary": "A workload accesses cloud instance metadata credentials and then performs unusual API calls, potentially indicating unauthorized privilege escalation or sensitive resource access.",
+    "key_behaviors": [
+      "cloud control plane setting changes unexpectedly",
+      "actor, key, or workload is unusual for the action",
+      "sensitive resource access or privilege expansion follows",
+      "Cloud control plane or IAM change requires review"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1552.005 - Cloud Instance Metadata API",
+      "T1078.004 - Cloud Accounts",
+      "T1098 - Account Manipulation"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth",
+      "proxy",
+      "edr_process"
+    ],
+    "hunt_checklist": [
+      "Identify the workload, instance, role, or service account that accessed cloud instance metadata credentials.",
+      "Check metadata endpoint access such as 169.254.169.254, metadata.google.internal, or IMDS token activity.",
+      "Review cloud audit logs for API calls made after metadata credential access.",
+      "Determine whether the API calls are unusual for that workload identity or service account.",
+      "Check source IP, user agent, instance ID, role or service account, target resources, and time window.",
+      "Escalate if metadata credentials are used from an unexpected workload or cause unusual API activity.",
+      "Search relevant telemetry for: cloud control plane setting changes unexpectedly.",
+      "Search relevant telemetry for: actor, key, or workload is unusual for the action.",
+      "Search relevant telemetry for: sensitive resource access or privilege expansion follows.",
+      "Correlate activity by user, host, source IP, destination, and time window."
+    ],
+    "query_drafts": [
+      {
+        "name": "Cloud Metadata Token Abuse Hunt",
+        "platform": "Generic",
+        "query": "﻿# Generic Cloud Metadata Token Abuse Hunt\ntelemetry: cloud_audit, proxy, edr_process\nfields: timestamp, host, user, process_name, command_line, url, dest_ip, actor, principal, operation, resource, user_agent\nlogic:\n  from proxy or edr_process within last 24h\n  where url or dest_ip references metadata endpoints [169.254.169.254, metadata.google.internal, IMDS]\n  project timestamp, host, user, process_name, command_line, url, dest_ip\n  then from cloud_audit after metadata access\n  where actor/principal matches workload role or service account and operation is unusual for baseline\ncorrelate:\n  tie metadata access to instance/workload identity and follow-on cloud API calls.",
+        "purpose": "Draft query to detect suspicious access to cloud metadata tokens and follow-on unusual API calls.",
+        "telemetry": [
+          "cloud_audit",
+          "proxy",
+          "edr_process"
+        ]
+      },
+      {
+        "name": "Cloud Metadata Token Abuse Hunt",
+        "platform": "KQL",
+        "query": "// Hunt for cloud instance metadata credential or token access.\nlet metadata_hosts = dynamic([\"169.254.169.254\", \"metadata.google.internal\"]);\nDeviceNetworkEvents\n| where Timestamp > ago(24h)\n| where RemoteIP in (metadata_hosts) or RemoteUrl has_any (\"metadata.google.internal\", \"169.254.169.254\")\n| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, ProcessCommandLine, RemoteIP, RemoteUrl",
+        "purpose": "Draft KQL query to identify access to cloud metadata endpoints.",
+        "telemetry": [
+          "cloud_audit"
+        ]
+      },
+      {
+        "name": "Cloud Metadata Token Abuse Hunt",
+        "platform": "SPL",
+        "query": "index=proxy OR index=edr earliest=-24h (\"169.254.169.254\" OR \"metadata.google.internal\")\n| table _time host user process_name command_line dest_ip url action",
+        "purpose": "Draft SPL query to detect metadata endpoint access in proxy and EDR logs.",
+        "telemetry": [
+          "proxy",
+          "edr_process"
+        ]
+      }
+    ],
+    "correlation_logic": "Correlate metadata endpoint access with workload identity, instance ID, role or service account, source IP, user agent, and follow-on cloud API calls.",
+    "escalation_condition": "Escalate when metadata credentials are accessed or used by an unexpected workload, or when follow-on API activity is unusual.",
+    "analyst_notes": "This hunt package is generated from a synthetic MVP alert report. Analyst validation is required to confirm suspicious activity before escalation. Review all telemetry and context carefully.\n\nRAG mode: LLM/RAG analyzer output with semantic field-level guardrails. Validate before operational use. OpenAI usage: prompt_tokens=4715, completion_tokens=2250, total_tokens=6965.\nIntent: cloud_metadata\nRetrieved sources:\n- Soc Hunt Playbooks (chunk 1) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Soc Hunt Playbooks (chunk 2) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Soc Hunt Playbooks (chunk 3) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Cloud Instance Metadata Token Abuse (case, D:\\AI20k\\c2-app-090\\C2-App-090\\evaluation\\datasets\\expected_hunt_packages\\cloud_instance_metadata_token_abuse.json, score=1.346)",
+    "confidence_score": 1.0,
+    "confidence_reasons": [
+      "High reference match (1.00)."
+    ],
+    "severity_hint": "Critical",
+    "risk_explanation": "Cloud Metadata Credential Access is critical because unexpected changes in cloud control plane settings and unusual API calls following metadata credential access may indicate unauthorized privilege escalation or data exfiltration attempts.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review the report title, severity, affected entities, and observed behaviors to understand the scope and nature of the alert.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search cloud_audit, auth, edr_process, and proxy telemetry for core suspicious behaviors such as unexpected cloud control plane changes, unusual actor or workload, and privilege escalation.",
+        "expected_evidence": [
+          "cloud control plane setting changes unexpectedly",
+          "actor, key, or workload is unusual for the action",
+          "sensitive resource access or privilege expansion follows"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate metadata endpoint access with workload identity, instance ID, role or service account, source IP, user agent, and subsequent cloud API calls to establish a timeline and scope of activity.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate if metadata credential access is confirmed on a production asset or workload and the activity cannot be explained by approved business or administrative actions; otherwise, close as false positive.",
+        "expected_evidence": [
+          "business justification",
+          "false positive check",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping the investigation early focuses efforts and helps determine the appropriate response team.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "Confirming the suspicious activity prevents unnecessary escalation and focuses on real threats.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "This step reduces false positives and ensures legitimate changes are not mistaken for attacks.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "Cloud control plane setting changes unexpectedly, indicating potential unauthorized access.",
+        "evidence_needed": [
+          "cloud_audit",
+          "auth"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates the suspicious behavior against telemetry and indicators, focusing on metadata credential access and follow-on API calls.",
+        "evidence_needed": [
+          "Identify the workload, instance, role, or service account that accessed cloud instance metadata credentials.",
+          "Check metadata endpoint access such as 169.254.169.254, metadata.google.internal, or IMDS token activity."
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, ask for help, or close the case based on evidence and business context.",
+        "evidence_needed": [
+          "Escalate when cloud metadata credential access is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity."
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Verify if the activity matches an approved change, maintenance window, or authorized administrative workflow.",
+      "Confirm whether the affected user, host, workload, or resource is expected to perform this action.",
+      "Review surrounding events to avoid misclassifying isolated benign activity as malicious."
+    ],
+    "recommended_response": [
+      "Preserve all relevant telemetry, query results, and analyst notes as evidence for further analysis.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious or unauthorized activity."
+    ],
+    "warning_preview": {
+      "should_send": true,
+      "recipient_role": "soc_channel",
+      "message": "[Review] Cloud Metadata Credential Access\nSummary: A workload accesses cloud instance metadata credentials and then performs unusual API calls.\nPriority: Validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  },
+  "13f384d928cb49e139b380e8c99582594d8badbbff69c866fea1a8b47c942180": {
+    "package_id": "cb43ddaa4948",
+    "report_title": "New UID 0 User Created",
+    "threat_summary": "A new Linux user is created with UID 0 or root-equivalent privileges.",
+    "key_behaviors": [
+      "new Linux user is created with UID 0",
+      "/etc/passwd is modified",
+      "interactive SSH or bash activity follows",
+      "Linux privilege-related file or account setting changes",
+      "change is not tied to approved administration",
+      "interactive shell or privileged command follows the change",
+      "Linux privilege or shell activity requires review",
+      "Linux UID 0 or root-equivalent account created"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [],
+      "processes": [
+        "bash",
+        "useradd"
+      ],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1136.001 - Local Account",
+      "T1548 - Abuse Elevation Control Mechanism",
+      "T1078 - Valid Accounts",
+      "T1548.003 - Sudo and Sudo Caching"
+    ],
+    "required_telemetry": [
+      "linux_audit",
+      "auth",
+      "linux_process",
+      "file_events"
+    ],
+    "hunt_checklist": [
+      "Review Linux audit/process telemetry for cron, systemd, shell profile, sudoers, SSH authorized_keys, or /etc persistence changes.",
+      "Identify the user, UID, parent process, command line, file path, source IP, and host baseline.",
+      "Check whether curl, wget, bash, python, perl, or reverse-shell commands appear near persistence changes.",
+      "Review recent SSH, sudo, privilege escalation, and outbound network activity on the same host.",
+      "Escalate if persistence or privilege changes are not approved administration activity.",
+      "Review Linux audit and file telemetry for new users with UID 0 or root-equivalent privileges.",
+      "Inspect /etc/passwd, /etc/shadow, /etc/group, and /etc/sudoers changes around the alert time.",
+      "Identify the actor, parent process, command line, host, UID/GID, and source IP if remote administration was used.",
+      "Review follow-on SSH, sudo, shell, and privileged command activity for the new account.",
+      "Escalate if the UID 0 account was not created by an approved administrative workflow."
+    ],
+    "query_drafts": [
+      {
+        "name": "Linux Uid0 Account Creation Hunt",
+        "platform": "GENERIC",
+        "query": "﻿telemetry: linux_audit, linux_process, file_events, auth\nfields: timestamp, host, user, uid, gid, process_name, command_line, file_path, action, src_ip, result\nlogic:\n  from linux_audit, linux_process, file_events, or auth within last 24h\n  where command_line or action indicates useradd/usermod/vipw/passwd changes\n  or file_path is /etc/passwd, /etc/shadow, /etc/group, or /etc/sudoers\n  identify accounts with UID 0 or root-equivalent privilege\ncorrelate:\n  review SSH, sudo, shell, and privileged command activity after the account creation.\n",
+        "purpose": "Draft query based on template query_templates\\generic\\linux_uid0_account_creation_hunt.txt. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Linux Uid0 Account Creation Hunt",
+        "platform": "KQL",
+        "query": "﻿// Generic Linux UID 0 account creation hunt. Review table/field names against your Linux audit schema.\nLinuxAuditLog\n| where TimeGenerated > ago(24h)\n| where CommandLine has_any (\"useradd\", \"usermod\", \"vipw\", \"passwd\")\n   or FilePath in (\"/etc/passwd\", \"/etc/shadow\", \"/etc/group\", \"/etc/sudoers\")\n   or CommandLine has \"uid=0\"\n| project TimeGenerated, HostName, User, UID, GID, ProcessName, CommandLine, FilePath, Action, SourceIP, Result\n",
+        "purpose": "Draft query based on template query_templates\\kql\\linux_uid0_account_creation_hunt.kql. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Linux Uid0 Account Creation Hunt",
+        "platform": "SPL",
+        "query": "﻿index=linux earliest=-24h (\"useradd\" OR \"usermod\" OR \"vipw\" OR \"uid=0\" OR \"/etc/passwd\" OR \"/etc/shadow\" OR \"/etc/sudoers\")\n| table _time host user uid gid process command_line file_path action src_ip result\n",
+        "purpose": "Draft query based on template query_templates\\splunk\\linux_uid0_account_creation_hunt.spl. Review field names before running.",
+        "telemetry": []
+      }
+    ],
+    "correlation_logic": "Correlate Linux file modification, process execution, SSH/auth events, UID changes, source IP, and outbound network activity on the same host.",
+    "escalation_condition": "Escalate when Linux persistence, root privilege change, or reverse-shell behavior is confirmed outside approved administration.",
+    "analyst_notes": "MVP hybrid analyzer output. Hybrid analyzer matched reference `linux_new_root_user` with score 1.00. Review generated queries and assumptions before operational use.\n\nRAG mode: LLM generation unavailable; returned hybrid baseline with RAG citations.\nIntent: linux\nRetrieved sources:\n- Soc Hunt Playbooks (chunk 2) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=0.680)\n- Soc Hunt Playbooks (chunk 1) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Soc Hunt Playbooks (chunk 3) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.520)\n- Linux New Root User (case, D:\\AI20k\\c2-app-090\\C2-App-090\\evaluation\\datasets\\expected_hunt_packages\\linux_new_root_user.json, score=0.899)",
+    "confidence_score": 1.0,
+    "confidence_reasons": [
+      "High reference match (1.00)."
+    ],
+    "severity_hint": "Critical",
+    "risk_explanation": "New UID 0 User Created needs review because Linux privilege-related file or account setting changes may indicate suspicious activity. The analyst should validate the evidence before treating the case as confirmed malicious.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review the report title, severity, affected entities, and observed behaviors.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search linux_audit, auth, linux_process, edr_process for the core behaviors and indicators listed in the hunt package.",
+        "expected_evidence": [
+          "Linux privilege-related file or account setting changes",
+          "change is not tied to approved administration",
+          "interactive shell or privileged command follows the change"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate Linux file modification, process execution, SSH/auth events, UID changes, source IP, and outbound network activity on the same host.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate when new uid 0 user created is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+        "expected_evidence": [
+          "business justification",
+          "false positive check",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping first keeps the investigation focused and helps decide who needs to respond.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "The alert should not be escalated until the primary evidence is confirmed.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "This reduces false positives before warning or escalation.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "Linux privilege-related file or account setting changes",
+        "evidence_needed": [
+          "linux_audit",
+          "auth"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates the behavior against telemetry and indicators.",
+        "evidence_needed": [
+          "Review Linux audit/process telemetry for cron, systemd, shell profile, sudoers, SSH authorized_keys, or /etc persistence changes.",
+          "Identify the user, UID, parent process, command line, file path, source IP, and host baseline."
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, ask for help, or close as benign.",
+        "evidence_needed": [
+          "Escalate when new uid 0 user created is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity."
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Check whether the activity matches an approved change, maintenance window, security tool, or administrator workflow.",
+      "Confirm whether the affected user, host, workload, or resource is expected to perform this action.",
+      "Review nearby events before escalation to avoid treating isolated benign activity as confirmed malicious."
+    ],
+    "recommended_response": [
+      "Preserve relevant telemetry, query results, and analyst notes as evidence.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious activity."
+    ],
+    "warning_preview": {
+      "should_send": false,
+      "recipient_role": "soc_channel",
+      "message": "[Review] New UID 0 User Created\nSummary: A new Linux user is created with UID 0 or root-equivalent privileges.\nPriority: validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  },
+  "fc8c7cbbdf52c38a30687d429811cb4e2fb09f102afc53547ddb43658664ad47": {
+    "package_id": "d10e531de83f",
+    "report_title": "EDR Malware Quarantine Failed",
+    "threat_summary": "EDR detects malware but fails to quarantine the file, indicating potential active malware presence and incomplete remediation on the endpoint.",
+    "key_behaviors": [
+      "malware-like process or detection appears on endpoint",
+      "remediation status or process behavior needs validation",
+      "network, persistence, or file activity may follow",
+      "files: edr_malware_quarantine_failed.bin",
+      "processes: malware.exe"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [
+        "edr_malware_quarantine_failed.bin"
+      ],
+      "processes": [
+        "malware.exe"
+      ],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1204.002 - Malicious File",
+      "T1218.005 - Mshta",
+      "T1547.001 - Registry Run Keys / Startup Folder",
+      "T1053.005 - Scheduled Task",
+      "T1546.003 - WMI Event Subscription",
+      "T1543.003 - Windows Service",
+      "T1560 - Archive Collected Data",
+      "T1195.002 - Compromise Software Supply Chain",
+      "T1053.003 - Cron",
+      "T1546 - Event Triggered Execution",
+      "T1543 - Create or Modify System Process"
+    ],
+    "required_telemetry": [
+      "edr_process",
+      "edr_registry",
+      "dns",
+      "proxy",
+      "firewall"
+    ],
+    "hunt_checklist": [
+      "Search relevant telemetry for malware-like process or detection appearing on the endpoint.",
+      "Validate remediation status or process behavior in telemetry to confirm quarantine failure.",
+      "Investigate network, persistence, or file activity following the suspicious process.",
+      "Correlate activity by user, host, source IP, destination, and time window to identify scope.",
+      "Confirm whether the behavior is expected business activity before escalation.",
+      "Search telemetry for files: edr_malware_quarantine_failed.bin.",
+      "Search telemetry for processes: malware.exe.",
+      "Correlate suspicious process chains by host, user, and 24-hour window.",
+      "Check DNS and proxy activity after the suspicious process execution.",
+      "Search relevant telemetry for: malware-like process or detection appears on endpoint.",
+      "Search relevant telemetry for: remediation status or process behavior needs validation.",
+      "Search relevant telemetry for: network, persistence, or file activity may follow.",
+      "Correlate activity by user, host, source IP, destination, and time window.",
+      "Search telemetry for: malware-like process or detection appears on endpoint.",
+      "Search telemetry for: remediation status or process behavior needs validation.",
+      "Search telemetry for: network, persistence, or file activity may follow.",
+      "Search telemetry for: files: edr_malware_quarantine_failed.bin.",
+      "Search telemetry for: processes: malware.exe.",
+      "Check DNS/proxy activity after the suspicious process or identity event."
+    ],
+    "query_drafts": [
+      {
+        "name": "Registry Runkey Hunt",
+        "platform": "KQL",
+        "query": "// Find Run Key persistence creation or modification.\nDeviceRegistryEvents\n| where Timestamp > ago(24h)\n| where RegistryKey has \"\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\"\n| project Timestamp, DeviceName, AccountName, RegistryKey, RegistryValueData, InitiatingProcessFileName\n",
+        "purpose": "Draft query to detect persistence via Registry Run Keys. Review field names before running.",
+        "telemetry": [
+          "edr_registry"
+        ]
+      }
+    ],
+    "correlation_logic": "Correlate alert evidence across edr_process, edr_registry, dns, proxy, and firewall telemetry within the same user, host, source IP, destination, and 24-hour window to identify related malicious activity and persistence.",
+    "escalation_condition": "Escalate when EDR malware quarantine failure is confirmed on a production user, host, workload, or asset and the suspicious behavior cannot be explained by approved business activity or administrative processes.",
+    "analyst_notes": "This package is generated from a synthetic MVP alert report. Analyst validation of telemetry and behavior is required before escalation. Review all generated queries and assumptions carefully.\n\nRAG mode: LLM/RAG analyzer output with semantic field-level guardrails. Validate before operational use. OpenAI usage: prompt_tokens=4557, completion_tokens=1906, total_tokens=6463.\nIntent: endpoint\nRetrieved sources:\n- Soc Hunt Playbooks (chunk 1) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=0.680)\n- Soc Hunt Playbooks (chunk 3) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=0.680)\n- Soc Hunt Playbooks (chunk 2) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Edr Malware Quarantine Failed (case, D:\\AI20k\\c2-app-090\\C2-App-090\\evaluation\\datasets\\expected_hunt_packages\\edr_malware_quarantine_failed.json, score=0.915)",
+    "confidence_score": 1.0,
+    "confidence_reasons": [
+      "High reference match (1.00)."
+    ],
+    "severity_hint": "Critical",
+    "risk_explanation": "Failure to quarantine detected malware may indicate active compromise or incomplete remediation, posing a critical risk to endpoint security and potentially enabling persistence or data exfiltration.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review alert metadata, severity, affected entities, and observed behaviors to understand the scope and nature of the alert.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search edr_process, edr_registry, dns, and proxy telemetry for malware-like processes, quarantine failure indicators, and related network or persistence activity.",
+        "expected_evidence": [
+          "malware-like process or detection on endpoint",
+          "remediation status or process behavior indicating quarantine failure",
+          "network, persistence, or file activity following detection"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate telemetry across sources by user, host, source IP, destination, and time window to identify related suspicious activity or persistence mechanisms.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate if suspicious activity is confirmed on production assets without business justification; otherwise, close or monitor as appropriate.",
+        "expected_evidence": [
+          "business justification",
+          "false positive checks",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping focuses the investigation and determines who must respond to the incident.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "Confirming primary evidence prevents escalation of false positives and ensures accurate incident handling.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "Reduces false positives by excluding legitimate maintenance or administrative actions from escalation.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "Malware-like process or detection appears on endpoint indicating potential compromise.",
+        "evidence_needed": [
+          "edr_process",
+          "file_events"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates suspicious behavior and quarantine failure using telemetry and indicators.",
+        "evidence_needed": [
+          "edr_process",
+          "edr_registry",
+          "dns",
+          "proxy"
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, seek assistance, or close the case based on evidence and business context.",
+        "evidence_needed": [
+          "business justification",
+          "false positive checks"
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Verify if the detected activity matches approved maintenance, security tool operations, or administrator workflows.",
+      "Confirm whether the affected user, host, or workload is authorized to perform the observed actions.",
+      "Review surrounding events to ensure the activity is not isolated benign behavior before escalation."
+    ],
+    "recommended_response": [
+      "Preserve all relevant telemetry, query results, and analyst notes as evidence for further analysis.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious or malicious activity.",
+      "Continue monitoring affected endpoints for additional suspicious behavior or remediation failures."
+    ],
+    "warning_preview": {
+      "should_send": true,
+      "recipient_role": "soc_channel",
+      "message": "[Review] EDR Malware Quarantine Failed\nSummary: EDR detects malware but fails to quarantine the file.\nPriority: Validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  },
+  "3df446ba21079e510121074d551acec90ce066f0a4d1d8c39f7f017da735470d": {
+    "package_id": "ad994f65faaa",
+    "report_title": "Chained LOLBin Execution",
+    "threat_summary": "Multiple trusted Windows binaries execute in sequence.",
+    "key_behaviors": [
+      "trusted Windows binary runs with unusual arguments",
+      "binary is used to download, execute, or proxy suspicious code",
+      "network or child process activity follows execution",
+      "files: lolbin_suspicious_chain.bin",
+      "processes: rundll32.exe, regsvr32.exe"
+    ],
+    "ioc": {
+      "domains": [],
+      "ips": [],
+      "hashes": [],
+      "files": [
+        "lolbin_suspicious_chain.bin"
+      ],
+      "processes": [
+        "rundll32.exe",
+        "regsvr32.exe"
+      ],
+      "registry_keys": []
+    },
+    "mitre_mapping": [
+      "T1218 - System Binary Proxy Execution",
+      "T1218.005 - Mshta",
+      "T1547.001 - Registry Run Keys / Startup Folder",
+      "T1218.011 - Rundll32"
+    ],
+    "required_telemetry": [
+      "edr_process",
+      "proxy",
+      "dns",
+      "edr_registry",
+      "file_events"
+    ],
+    "hunt_checklist": [
+      "Search relevant telemetry for: trusted Windows binary runs with unusual arguments.",
+      "Search relevant telemetry for: binary is used to download, execute, or proxy suspicious code.",
+      "Search relevant telemetry for: network or child process activity follows execution.",
+      "Correlate activity by user, host, source IP, destination, and time window.",
+      "Confirm whether the behavior is expected business activity before escalation.",
+      "Search telemetry for: trusted Windows binary runs with unusual arguments.",
+      "Search telemetry for: binary is used to download, execute, or proxy suspicious code.",
+      "Search telemetry for: network or child process activity follows execution.",
+      "Search telemetry for: files: lolbin_suspicious_chain.bin.",
+      "Search telemetry for: processes: rundll32.exe, regsvr32.exe.",
+      "Correlate suspicious process chains by host, user, and 24-hour window.",
+      "Check DNS/proxy activity after the suspicious process or identity event."
+    ],
+    "query_drafts": [
+      {
+        "name": "Process Registry Network Hunt",
+        "platform": "KQL",
+        "query": "// Hunt for Office spawning mshta, followed by persistence and network activity.\nlet process_window = 24h;\nlet suspicious_process = DeviceProcessEvents\n| where Timestamp > ago(process_window)\n| where InitiatingProcessFileName in~ (\"excel.exe\", \"winword.exe\", \"outlook.exe\")\n| where FileName =~ \"mshta.exe\"\n| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine;\nlet persistence = DeviceRegistryEvents\n| where Timestamp > ago(process_window)\n| where RegistryKey has @\"\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\"\n| project Timestamp, DeviceName, RegistryKey, RegistryValueData, InitiatingProcessFileName;\nlet network = DeviceNetworkEvents\n| where Timestamp > ago(process_window)\n| where RemoteUrl != \"\" or RemoteIP != \"\"\n| project Timestamp, DeviceName, InitiatingProcessFileName, RemoteUrl, RemoteIP, RemotePort;\nsuspicious_process\n| join kind=leftouter persistence on DeviceName\n| join kind=leftouter network on DeviceName\n",
+        "purpose": "Draft query based on template query_templates\\kql\\process_registry_network_hunt.kql. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Process Registry Network Hunt",
+        "platform": "SPL",
+        "query": "index=edr sourcetype=process earliest=-24h\n(parent_process IN (\"excel.exe\",\"winword.exe\",\"outlook.exe\") process_name=\"mshta.exe\")\n| table _time host user parent_process process_name command_line\n\nindex=edr sourcetype=registry earliest=-24h registry_key=\"*\\Software\\Microsoft\\Windows\\CurrentVersion\\Run*\"\n| table _time host user process_name registry_key registry_value\n\nindex=proxy OR index=dns earliest=-24h\n| search domain=* OR query=*\n| table _time host user domain query action category\n",
+        "purpose": "Draft query based on template query_templates\\splunk\\process_registry_network_hunt.spl. Review field names before running.",
+        "telemetry": []
+      },
+      {
+        "name": "Encoded Powershell Hunt",
+        "platform": "KQL",
+        "query": "// Find encoded or hidden PowerShell launched by suspicious parents.\nDeviceProcessEvents\n| where Timestamp > ago(24h)\n| where FileName =~ \"powershell.exe\"\n| where ProcessCommandLine has_any (\"-enc\", \"-EncodedCommand\", \"-nop\", \"-w hidden\")\n| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine\n",
+        "purpose": "Draft query based on template query_templates\\kql\\encoded_powershell_hunt.kql. Review field names before running.",
+        "telemetry": []
+      }
+    ],
+    "correlation_logic": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+    "escalation_condition": "Escalate when chained lolbin execution is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+    "analyst_notes": "MVP hybrid analyzer output. Hybrid analyzer matched reference `lolbin_suspicious_chain` with score 1.00. Review generated queries and assumptions before operational use.\n\nRAG mode: LLM generation unavailable; returned hybrid baseline with RAG citations.\nIntent: endpoint_lolbin\nRetrieved sources:\n- Soc Hunt Playbooks (chunk 1) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=0.680)\n- Soc Hunt Playbooks (chunk 3) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=0.280)\n- Soc Hunt Playbooks (chunk 2) (playbook, D:\\AI20k\\c2-app-090\\C2-App-090\\data\\playbooks\\soc_hunt_playbooks.md, score=-0.120)\n- Lolbin Suspicious Chain (case, D:\\AI20k\\c2-app-090\\C2-App-090\\evaluation\\datasets\\expected_hunt_packages\\lolbin_suspicious_chain.json, score=0.897)",
+    "confidence_score": 1.0,
+    "confidence_reasons": [
+      "High reference match (1.00)."
+    ],
+    "severity_hint": "High",
+    "risk_explanation": "Chained LOLBin Execution needs review because trusted Windows binary runs with unusual arguments may indicate suspicious activity. The analyst should validate the evidence before treating the case as confirmed malicious.",
+    "investigation_flow": [
+      {
+        "step_id": "confirm-alert-context",
+        "title": "Confirm alert context",
+        "description": "Review the report title, severity, affected entities, and observed behaviors.",
+        "expected_evidence": [
+          "alert metadata",
+          "affected user/host/resource",
+          "event time window"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "validate-primary-evidence",
+        "title": "Validate primary evidence",
+        "description": "Search edr_process, proxy, dns, edr_registry for the core behaviors and indicators listed in the hunt package.",
+        "expected_evidence": [
+          "trusted Windows binary runs with unusual arguments",
+          "binary is used to download, execute, or proxy suspicious code",
+          "network or child process activity follows execution"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "correlate-follow-on-activity",
+        "title": "Correlate follow-on activity",
+        "description": "Correlate alert evidence across listed telemetry sources within the same user, host, source IP, destination, and 24-hour window unless the report specifies a narrower time range.",
+        "expected_evidence": [
+          "same user/host/resource",
+          "source IP or session",
+          "nearby follow-on events"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      },
+      {
+        "step_id": "decide-escalation-or-close",
+        "title": "Decide escalation or closure",
+        "description": "Escalate when chained lolbin execution is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity.",
+        "expected_evidence": [
+          "business justification",
+          "false positive check",
+          "escalation evidence"
+        ],
+        "status": "pending",
+        "can_ask_for_help": true
+      }
+    ],
+    "priority_actions": [
+      {
+        "action_id": "identify-scope",
+        "title": "Identify affected user, host, workload, or resource",
+        "why_it_matters": "Scoping first keeps the investigation focused and helps decide who needs to respond.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "validate-core-behavior",
+        "title": "Validate the core suspicious behavior in telemetry",
+        "why_it_matters": "The alert should not be escalated until the primary evidence is confirmed.",
+        "recommended_time": "first_15_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      },
+      {
+        "action_id": "check-approved-activity",
+        "title": "Check for approved business or administrative activity",
+        "why_it_matters": "This reduces false positives before warning or escalation.",
+        "recommended_time": "first_30_minutes",
+        "requires_approval": false,
+        "status": "pending"
+      }
+    ],
+    "timeline_or_attack_path": [
+      {
+        "order": 1,
+        "stage": "Initial signal",
+        "description": "trusted Windows binary runs with unusual arguments",
+        "evidence_needed": [
+          "edr_process",
+          "proxy"
+        ]
+      },
+      {
+        "order": 2,
+        "stage": "Validation",
+        "description": "Analyst validates the behavior against telemetry and indicators.",
+        "evidence_needed": [
+          "Search relevant telemetry for: trusted Windows binary runs with unusual arguments.",
+          "Search relevant telemetry for: binary is used to download, execute, or proxy suspicious code."
+        ]
+      },
+      {
+        "order": 3,
+        "stage": "Decision",
+        "description": "Analyst decides whether to escalate, ask for help, or close as benign.",
+        "evidence_needed": [
+          "Escalate when chained lolbin execution is confirmed on a real user, host, workload, or production asset and the behavior cannot be explained by approved business activity."
+        ]
+      }
+    ],
+    "false_positive_checks": [
+      "Check whether the activity matches an approved change, maintenance window, security tool, or administrator workflow.",
+      "Confirm whether the affected user, host, workload, or resource is expected to perform this action.",
+      "Review nearby events before escalation to avoid treating isolated benign activity as confirmed malicious."
+    ],
+    "recommended_response": [
+      "Preserve relevant telemetry, query results, and analyst notes as evidence.",
+      "Escalate to a senior analyst or supervisor if primary evidence confirms suspicious activity."
+    ],
+    "warning_preview": {
+      "should_send": false,
+      "recipient_role": "soc_channel",
+      "message": "[Review] Chained LOLBin Execution\nSummary: Multiple trusted Windows binaries execute in sequence.\nPriority: validate primary evidence and scope affected entities before escalation.\nStatus: Hunt package generated; analyst confirmation required before sending.",
+      "requires_confirmation": true
+    }
+  }
+}

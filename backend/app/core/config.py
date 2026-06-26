@@ -16,8 +16,14 @@ class Settings(BaseSettings):
     openai_chat_model: str = "gpt-4.1-mini"
     openai_embedding_model: str = "text-embedding-3-small"
     vector_store: str = "local"
-    rag_top_k: int = 8
+    rag_top_k: int = 4
+    rag_candidate_multiplier: int = 2
+    rag_context_chars: int = 900
+    rag_cache_enabled: bool = True
     rag_index_path: Path | None = None
+    firestore_enabled: bool = False
+    firebase_project_id: str | None = None
+    firebase_require_auth: bool = False
     data_dir: Path = Path(__file__).resolve().parents[3] / "data"
     cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"]
 

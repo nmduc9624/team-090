@@ -46,6 +46,7 @@ def generate_hunt_package_json(request: ThreatReportRequest, context: RagContext
 
 
 def _build_prompt(request: ThreatReportRequest, context: RagContext, baseline: HuntPackage) -> str:
+    settings = get_settings()
     schema = {
         "package_id": "string",
         "report_title": "string",
@@ -62,13 +63,43 @@ def _build_prompt(request: ThreatReportRequest, context: RagContext, baseline: H
         "mitre_mapping": ["Txxxx - technique name"],
         "required_telemetry": ["string"],
         "hunt_checklist": ["string"],
-        "query_drafts": [{"name": "string", "platform": "KQL|SPL|Sigma|Generic", "query": "string", "purpose": "string"}],
+        "query_drafts": [{"name": "string", "platform": "KQL|SPL|Sigma|Generic", "telemetry": ["string"], "query": "string", "purpose": "string"}],
         "correlation_logic": "string",
         "escalation_condition": "string",
         "analyst_notes": "string",
+        "risk_explanation": "string",
+        "investigation_flow": [
+            {
+                "step_id": "string",
+                "title": "string",
+                "description": "string",
+                "expected_evidence": ["string"],
+                "status": "pending",
+                "can_ask_for_help": True,
+            }
+        ],
+        "priority_actions": [
+            {
+                "action_id": "string",
+                "title": "string",
+                "why_it_matters": "string",
+                "recommended_time": "first_15_minutes|first_30_minutes|same_day",
+                "requires_approval": False,
+                "status": "pending",
+            }
+        ],
+        "timeline_or_attack_path": [{"order": 1, "stage": "string", "description": "string", "evidence_needed": ["string"]}],
+        "false_positive_checks": ["string"],
+        "recommended_response": ["string"],
+        "warning_preview": {
+            "should_send": False,
+            "recipient_role": "soc_channel|supervisor|senior|mentor",
+            "message": "string",
+            "requires_confirmation": True,
+        },
     }
     retrieved = "\n\n".join(
-        f"[{idx}] {item.document.title}\nType: {item.document.source_type}\nPath: {item.document.path}\nMetadata: {item.document.metadata}\nContent:\n{item.document.content[:1800]}"
+        f"[{idx}] {item.document.title}\nType: {item.document.source_type}\nPath: {item.document.path}\nMetadata: {item.document.metadata}\nContent:\n{item.document.content[:settings.rag_context_chars]}"
         for idx, item in enumerate(context.retrieved, start=1)
     )
     return f"""
@@ -117,6 +148,11 @@ Rules:
 - If unsure, preserve the baseline analyzer field.
 - Query drafts must be based on retrieved query templates or be marked as draft.
 - analyst_notes must mention that analyst validation is required.
+- investigation_flow must be step-by-step and understandable for a junior SOC analyst.
+- priority_actions must focus on the first actions that reduce uncertainty or risk.
+- warning_preview is only a draft. Use should_send=true only for High/Critical or clearly high-risk cases, and always keep requires_confirmation=true.
+- recommended_response must not claim that containment, account disablement, token revocation, or destructive actions were already performed.
+- false_positive_checks must be specific to the detected intent and practical for analyst review.
 """
 
 

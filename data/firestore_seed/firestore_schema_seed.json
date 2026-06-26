@@ -1,0 +1,155 @@
+{
+  "users/demo_junior_soc": {
+    "uid": "demo_junior_soc",
+    "email": "junior@example.com",
+    "display_name": "Demo Junior SOC",
+    "role": "junior_soc",
+    "team_id": "soc_team_01",
+    "status": "active",
+    "discord_user_id": "",
+    "created_at": "seed"
+  },
+  "users/demo_senior_soc": {
+    "uid": "demo_senior_soc",
+    "email": "senior@example.com",
+    "display_name": "Demo Senior SOC",
+    "role": "senior_soc",
+    "team_id": "soc_team_01",
+    "status": "active",
+    "discord_user_id": "",
+    "created_at": "seed"
+  },
+  "users/demo_supervisor": {
+    "uid": "demo_supervisor",
+    "email": "supervisor@example.com",
+    "display_name": "Demo Supervisor",
+    "role": "supervisor",
+    "team_id": "soc_team_01",
+    "status": "active",
+    "discord_user_id": "",
+    "created_at": "seed"
+  },
+  "users/demo_admin": {
+    "uid": "demo_admin",
+    "email": "admin@example.com",
+    "display_name": "Demo Admin",
+    "role": "admin",
+    "team_id": "soc_team_01",
+    "status": "active",
+    "discord_user_id": "",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001": {
+    "case_id": "demo_case_001",
+    "title": "Demo Cloud IAM Admin Policy Attached",
+    "severity": "Critical",
+    "confidence_score": 0.92,
+    "status": "open",
+    "created_by": "demo_junior_soc",
+    "owner_user_id": "demo_junior_soc",
+    "assigned_supervisor_id": "demo_supervisor",
+    "team_id": "soc_team_01",
+    "raw_report": {
+      "title": "Cloud IAM Admin Policy Attached",
+      "content": "Demo seed report used to create Firestore structure."
+    },
+    "created_at": "seed",
+    "updated_at": "seed"
+  },
+  "cases/demo_case_001/hunt_packages/demo_package_001": {
+    "package_id": "demo_package_001",
+    "report_title": "Demo Cloud IAM Admin Policy Attached",
+    "threat_summary": "A privileged cloud IAM policy was attached and requires validation.",
+    "risk_explanation": "Admin policy attachment can expand privilege and should be reviewed quickly.",
+    "key_behaviors": [
+      "cloud control plane setting changes unexpectedly",
+      "actor is unusual for the action"
+    ],
+    "required_telemetry": [
+      "cloud_audit",
+      "auth"
+    ],
+    "created_by": "demo_junior_soc",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/priority_actions/identify-scope": {
+    "action_id": "identify-scope",
+    "title": "Identify affected user, role, service account, or workload",
+    "why_it_matters": "Scoping first helps decide whether the change is risky.",
+    "recommended_time": "first_15_minutes",
+    "requires_approval": false,
+    "status": "pending",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/steps/confirm-alert-context": {
+    "step_id": "confirm-alert-context",
+    "title": "Confirm alert context",
+    "description": "Review the alert metadata, actor, target resource, and time window.",
+    "expected_evidence": [
+      "cloud audit event",
+      "actor principal",
+      "target resource"
+    ],
+    "status": "pending",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/warnings/demo_initial_warning": {
+    "warning_id": "demo_initial_warning",
+    "type": "initial_warning",
+    "title": "Demo initial warning",
+    "message": "Demo initial warning created by Firestore seed.",
+    "severity": "Critical",
+    "confidence_score": 0.92,
+    "recipient_role": "supervisor",
+    "requires_confirmation": true,
+    "status": "sent",
+    "discord_message_id": "",
+    "created_by": "demo_junior_soc",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/help_requests/demo_help_request": {
+    "help_request_id": "demo_help_request",
+    "step_id": "confirm-alert-context",
+    "current_step": "Confirm alert context",
+    "summary": "Junior analyst is validating whether the IAM change was approved.",
+    "question": "Should this be escalated if no change ticket exists?",
+    "evidence_available": [
+      "actor principal",
+      "cloud audit event"
+    ],
+    "completed_steps": [],
+    "status": "open",
+    "created_by": "demo_junior_soc",
+    "assigned_to": "demo_supervisor",
+    "discord_message_id": "",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/help_requests/demo_help_request/replies/demo_reply_001": {
+    "reply_id": "demo_reply_001",
+    "message": "Check approved change records first. Escalate if no approval exists.",
+    "author_uid": "demo_supervisor",
+    "author_discord_id": "",
+    "source": "seed",
+    "created_at": "seed"
+  },
+  "cases/demo_case_001/audit_logs/demo_audit_001": {
+    "event": "case_seeded",
+    "actor_uid": "demo_admin",
+    "actor_role": "admin",
+    "target": "demo_case_001",
+    "metadata": {
+      "source": "firestore_schema_seed"
+    },
+    "created_at": "seed"
+  },
+  "discord_tickets/demo_case_001": {
+    "case_id": "demo_case_001",
+    "channel_id": "demo_channel_id",
+    "channel_name": "junior-demo-cloud-iam-admin-policy-attached",
+    "guild_id": "demo_guild_id",
+    "status": "open",
+    "created_by": "demo_junior_soc",
+    "created_at": "seed",
+    "closed_at": null
+  }
+}

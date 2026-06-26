@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import data, hunt_packages, rag, threat_reports
+from app.api.routes import auth, cases, data, hunt_packages, notifications, rag, threat_reports
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -20,6 +20,9 @@ app.include_router(threat_reports.router)
 app.include_router(hunt_packages.router)
 app.include_router(data.router)
 app.include_router(rag.router)
+app.include_router(auth.router)
+app.include_router(notifications.router)
+app.include_router(cases.router)
 
 
 @app.get("/api/health")
@@ -30,4 +33,6 @@ def health():
         "version": settings.app_version,
         "ai_provider": settings.ai_provider,
         "analyzer_mode": settings.analyzer_mode,
+        "firestore_enabled": settings.firestore_enabled,
+        "firebase_project_id": settings.firebase_project_id,
     }
